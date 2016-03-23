@@ -1,47 +1,51 @@
 package sut.game01.core;
 
+import static playn.core.PlayN.*;
 
-import react.UnitSlot;
+
+import playn.core.Image;
+import playn.core.ImageLayer;
+import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
-import tripleplay.game.UIScreen;
-import tripleplay.ui.*;
-import tripleplay.ui.layout.AxisLayout;
-import playn.core.Font;
+import playn.core.*;
 
-import static playn.core.PlayN.graphics;
-
-
-public class Homescreen extends UIScreen {
-    private Root root ;
-    private ScreenStack ss;
-    public static final Font TITLE_FONT =
-            graphics().createFont("Helvetica", Font.Style.PLAIN, 24);
+public class Homescreen extends Screen {
+    private final ImageLayer bg;
+    private final ImageLayer start;
+    private final ImageLayer exit;
+    private final ScreenStack ss ;
     private TestScreen testScreen;
-    public Homescreen(ScreenStack ss){
-        this.ss=ss;
+
+    public Homescreen(final ScreenStack ss){
+        this.ss = ss;
         this.testScreen = new TestScreen(ss);
+        Image  bgImage =  assets().getImage("images/bg.png");
+        this.bg = graphics().createImageLayer(bgImage);
+
+        Image  startImage =  assets().getImage("images/start.png");
+        this.start = graphics().createImageLayer(startImage);
+
+        Image  exitImage =  assets().getImage("images/exit.png");
+        this.exit = graphics().createImageLayer(exitImage);
+
+        exit.setTranslation((640/2)-(128/2),(480/2)-(96/2));
+        start.setTranslation((640/2)-(128/2),(480/2)-96);
+        start.addListener(new Mouse.LayerAdapter(){
+            @Override
+            public void onMouseUp(Mouse.ButtonEvent event){
+                ss.push(testScreen);
+            }
+
+        });
     }
- @Override
-    public void wasShown(){
-     super.wasShown();
-     root = iface.createRoot(
-         AxisLayout.vertical().gap(15),
-                 SimpleStyles.newSheet(), this.layer);
 
-        root.addStyles(Style.BACKGROUND
-                .is(Background.bordered(0xFFCCCCCC, 0xFF99CCFF, 5)
-                        .inset(5, 10)));
-      root.setSize(width(),height());
+    @Override
+    public void wasShown() {
+        super.wasShown();
+        this.layer.add(bg);
+        this.layer.add(start);
+        this.layer.add(exit);
 
-      root.add(new Label("Test na ja")
-              .addStyles(Style.FONT.is(Homescreen.TITLE_FONT)));
-     root.add(new Button("Start").onClick((new UnitSlot() {
-         @Override
-         public void onEmit() {
-             ss.push(testScreen);
-         }
-     })));
-     }
 
- }
-
+    }
+}
