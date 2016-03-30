@@ -83,7 +83,7 @@ public class Zealot {
             }
 
         });
-        /*if(action == 1){
+        if(action == 1){
             state = State.RUN;
             spriteIndex = -1;
             e=0;
@@ -97,8 +97,8 @@ public class Zealot {
             state = State.IDLE;
             spriteIndex = -1;
             e=0;
-        }*/
-
+        }
+    System.out.println(action);
     }
 
     public Layer layer(){
