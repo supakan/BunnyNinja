@@ -42,64 +42,40 @@ public class Zealot {
             }
         });
 
-      /*  sprite.layer().addListener(new Mouse.LayerAdapter() {
-            @Override
-            public void onMouseUp(Mouse.ButtonEvent event) {
-               state = State.ATTK;
-                spriteIndex = -1 ;
-                e=0;
-            }
-
-        });*/
-        /*sprite.layer().addListener(new Pointer.Adapter(){
-            @Override
-            public  void onPointerEnd(Pointer.Event event){
-                state = State.ATTK;
-                spriteIndex = -1;
-                e=0;
-            }
-        });*/
         PlayN.keyboard().setListener(new Keyboard.Adapter() {
             @Override
             public void onKeyDown(Keyboard.Event event) {
-                if (event.key() == Key.Z || action == 2) {
+                if (event.key() == Key.Z) {
                     action = 2;
                     state = State.ATTK;
                     spriteIndex = -1;
                     e=0;
                 }
-                else  if (event.key() == Key.LEFT || action == 1){
+                else  if (event.key() == Key.LEFT){
                     action = 1;
                     state = State.RUN;
-                    spriteIndex = 1;
+                    spriteIndex = -1;
                     e=0;
-                }
-                else{
-                    action = 0;
-                    state =State.IDLE;
-                    spriteIndex = -1 ;
-                    e = 0;
                 }
             }
 
-        });
-        if(action == 1){
-            state = State.RUN;
-            spriteIndex = -1;
-            e=0;
-        }
-        else if(action == 2){
-            state = State.ATTK;
-            spriteIndex = 1;
-            e=0;
-        }
-        else if(action == 0){
-            state = State.IDLE;
-            spriteIndex = -1;
-            e=0;
-        }
-    System.out.println(action);
-    }
+            @Override
+            public void onKeyUp(Keyboard.Event event) {
+
+                          if (event.key() == Key.LEFT){
+                            action = 0;
+                            state = State.IDLE;
+                            spriteIndex = -1;
+                            e=0;
+                        }
+                    }
+
+                });
+            }
+
+
+
+
 
     public Layer layer(){
         return sprite.layer();
@@ -108,6 +84,20 @@ public class Zealot {
     public void update(int delta){
         if(!hasLoaded) return;
         e = e +delta;
+
+        if(action == 1){
+            state = State.RUN;
+
+
+        }
+        else if(action == 2){
+            state = State.ATTK;
+
+
+        }
+        else if(action == 0){
+            state = State.IDLE;
+        }
     /*    if(e > 150){
             spriteIndex = offset + ((spriteIndex + 1)%4);
             sprite.setSprite(spriteIndex);
@@ -127,12 +117,14 @@ public class Zealot {
                 case ATTK: offset = 8 ;
                     if(spriteIndex == 10){
                         state =State.IDLE;
+                        action = 0;
                     }
                     break;
             }
             spriteIndex = offset + ((spriteIndex + 1)%4);
             sprite.setSprite(spriteIndex);
             e=0;
+            System.out.println(action);
         }
 
     }
