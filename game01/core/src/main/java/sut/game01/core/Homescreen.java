@@ -37,6 +37,14 @@ public class Homescreen extends Screen {
             }
 
         });
+
+        exit.addListener(new Mouse.LayerAdapter(){
+            @Override
+            public void onMouseUp(Mouse.ButtonEvent event){
+                System.exit(0);
+            }
+
+        });
     }
 
     @Override

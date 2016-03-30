@@ -5,6 +5,8 @@ import static playn.core.PlayN.*;
 
 import playn.core.Image;
 import playn.core.ImageLayer;
+import playn.core.util.Callback;
+import sut.game01.core.character.Zealot;
 import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
 import playn.core.*;
@@ -13,11 +15,13 @@ public class TestScreen extends Screen {
     private final ImageLayer bg;
     private final ImageLayer back;
     private final ScreenStack ss ;
+    private final Image  bgImage;
+    private Zealot z;
 
     public TestScreen(final ScreenStack ss){
         this.ss = ss;
 
-        Image  bgImage =  assets().getImage("images/bg.png");
+         bgImage =  assets().getImage("images/bg.png");
          this.bg = graphics().createImageLayer(bgImage);
 
         Image  backImage =  assets().getImage("images/back.png");
@@ -31,14 +35,38 @@ public class TestScreen extends Screen {
             }
 
         });
+
     }
 
     @Override
     public void wasShown() {
         super.wasShown();
         this.layer.add(bg);
-        this.layer.add(back);
 
+        z = new Zealot(560f,400f);
+        this.layer.add(z.layer());
 
     }
+
+    @Override
+    public void update(int delta) {
+        super.update(delta);
+        z.update(delta);
+    }
+/*  @Override
+    public void wasAdded() {
+        super.wasAdded();
+        bgImage.addCallback(new Callback<Image>() {
+            @Override
+            public void onSuccess(Image result) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+
+            }
+        });
+        layer.add(bg);
+    }*/
 }
