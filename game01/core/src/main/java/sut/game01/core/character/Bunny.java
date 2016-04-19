@@ -87,14 +87,14 @@ public class Bunny {
             public void onKeyUp(Keyboard.Event event) {
 
                 if (event.key() == Key.LEFT){
-                    action = 0;
+                    action = 1;
                     state = State.LIDLE;
                     spriteIndex = -1;
                     e=0;
                 }
 
                else if (event.key() == Key.RIGHT){
-                    action = 1;
+                    action = 0;
                     state = State.RIDLE;
                     spriteIndex = -1;
                     e=0;
@@ -153,20 +153,20 @@ public class Bunny {
             switch (state){
                 case LIDLE: offset = 0;
                     break;
-                case RIDLE: offset = 4;
+                case RIDLE: offset = 12;
                     break;
                 case LRUN: offset = 8 ;
                     if(spriteIndex == 11){
                         state =State.LIDLE;
                     }
                     break;
-                case RRUN: offset = 12 ;
-                    if(spriteIndex == 14){
+                case RRUN: offset = 20 ;
+                    if(spriteIndex == 23){
                         state =State.RIDLE;
                         //action = 0;
                     }
                     break;
-                case LATK: offset = 16 ;
+             /*   case LATK: offset = 16 ;
                     if(spriteIndex == 18){
                         state = State.LIDLE;
                     }
@@ -175,14 +175,14 @@ public class Bunny {
                     if(spriteIndex == 22){
                         state = State.RIDLE;
                     }
-                    break;
-                case LJUM: offset = 24 ;
-                    if(spriteIndex == 27){
+                    break;*/
+                case LJUM: offset = 4 ;
+                    if(spriteIndex == 7){
                         state = State.LIDLE;
                     }
                     break;
-                case RJUM: offset = 28 ;
-                    if(spriteIndex == 31){
+                case RJUM: offset = 16 ;
+                    if(spriteIndex == 19){
                         state = State.RIDLE;
                     }
                     break;
