@@ -151,9 +151,9 @@ public class Bunny {
         if(e>150){
 
             switch (state){
-                case LIDLE: offset = 0;
+                case LIDLE: offset = 12;
                     break;
-                case RIDLE: offset = 12;
+                case RIDLE: offset = 0;
                     break;
                 case LRUN: offset = 8 ;
                     if(spriteIndex == 11){
