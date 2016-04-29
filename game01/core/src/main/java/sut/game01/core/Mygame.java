@@ -14,7 +14,6 @@ public class Mygame extends Game.Default {
   }
   @Override
   public void init() {
-
       ss.push(new Homescreen(ss));
   }
 
