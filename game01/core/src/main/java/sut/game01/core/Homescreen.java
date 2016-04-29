@@ -55,7 +55,5 @@ public class Homescreen extends Screen {
         this.layer.add(bg);
         this.layer.add(start);
         this.layer.add(exit);
-
-
     }
 }
