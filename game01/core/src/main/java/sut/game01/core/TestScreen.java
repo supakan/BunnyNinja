@@ -7,6 +7,7 @@ import playn.core.Image;
 import playn.core.ImageLayer;
 import playn.core.util.Callback;
 import sut.game01.core.character.Bunny;
+import sut.game01.core.character.Enemy;
 import sut.game01.core.character.Zealot;
 import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
@@ -19,6 +20,7 @@ public class TestScreen extends Screen {
     private final Image  bgImage;
   //  private Zealot z;
     private Bunny z;
+    private Enemy e;
 
     public TestScreen(final ScreenStack ss){
         this.ss = ss;
@@ -49,12 +51,16 @@ public class TestScreen extends Screen {
         z = new Bunny(560f,400f);
         this.layer.add(z.layer());
 
+        e = new Enemy(100f,400f);
+        this.layer.add(e.layer());
+
     }
 
     @Override
     public void update(int delta) {
         super.update(delta);
         z.update(delta);
+        e.update(delta);
     }
 /*  @Override
     public void wasAdded() {

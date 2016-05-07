@@ -22,7 +22,6 @@ public class Bunny {
 
 
     private State state = State.RIDLE; // Start State
-
     private int e = 0 ; //Time Control
     private int offset = 0 ; //Set Of Picture
 
@@ -99,18 +98,18 @@ public class Bunny {
                     spriteIndex = -1;
                     e=0;
                 }
-                else if(event.key() == Key.Z){
+            /*    else if(event.key() == Key.Z){
                     if(state == State.LATK){
-                    action = 0;
+                    action = 1;
                     state = State.LIDLE;
                     }
                     else if(state == State.RATK){
-                        action = 1;
+                        action = 0;
                         state = State.RIDLE;
                     }
                     spriteIndex = -1;
                     e = 0;
-                }
+                }*/
             }
 
         });
@@ -166,16 +165,16 @@ public class Bunny {
                         //action = 0;
                     }
                     break;
-             /*   case LATK: offset = 16 ;
-                    if(spriteIndex == 18){
+                case LATK: offset = 28 ;
+                    if(spriteIndex == 31){
                         state = State.LIDLE;
                     }
                     break;
-                case RATK: offset = 20 ;
-                    if(spriteIndex == 22){
+                case RATK: offset = 24 ;
+                    if(spriteIndex == 27){
                         state = State.RIDLE;
                     }
-                    break;*/
+                    break;
                 case LJUM: offset = 4 ;
                     if(spriteIndex == 7){
                         state = State.LIDLE;
