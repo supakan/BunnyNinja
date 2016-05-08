@@ -1,7 +1,12 @@
 package sut.game01.core.character;
 
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.*;
 import playn.core.*;
 import playn.core.util.Callback;
+import playn.core.util.Clock;
+import sut.game01.core.TestScreen;
 import sut.game01.core.sprite.Sprite;
 import sut.game01.core.sprite.SpriteLoader;
 
@@ -15,24 +20,50 @@ public class Bunny {
     private int spriteIndex = 0;
     private boolean hasLoaded = false ;
     private int action = 0;
-
+    private Body body;
     public enum State {
         RIDLE,LIDLE, LRUN, RRUN,RATK,LATK,LJUM,RJUM,LSLD,RSLD
     };
 
 
-    private State state = State.RIDLE; // Start State
+    private State state = State.LRUN; // Start State
     private int e = 0 ; //Time Control
     private int offset = 0 ; //Set Of Picture
 
-    public Bunny(final float x,final float y){
+    private Body initPhysicsBody(World world, float x, float y){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyType.DYNAMIC;
+        bodyDef.position = new Vec2(0,0);
+        Body body = world.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(58* TestScreen.M_PER_PIXEL/2,
+                sprite.layer().height()*TestScreen.M_PER_PIXEL/2);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 0.4f;
+        fixtureDef.friction = 0.1f;
+        fixtureDef.restitution = 1f;
+        body.createFixture(fixtureDef);
+
+        body.setLinearDamping(0.2f);
+        body.setTransform(new Vec2(x,y),0f);
+
+        return body;
+    }
+
+    public Bunny(final World world,final float x,final float y){
         sprite = SpriteLoader.getSprite("images/bunny.json");
         sprite.addCallback(new Callback<Sprite>() {
             @Override
             public void onSuccess(Sprite result) {
                 sprite.setSprite(spriteIndex);
                 sprite.layer().setOrigin(sprite.width()/2f,sprite.height()/2f);
-                sprite.layer().setTranslation(x, y+ 13f);
+                sprite.layer().setTranslation(x, y);
+
+                body = initPhysicsBody(world,
+                        TestScreen.M_PER_PIXEL*x,
+                        TestScreen.M_PER_PIXEL*y);
                 hasLoaded = true;
             }
             @Override
@@ -85,33 +116,28 @@ public class Bunny {
             @Override
             public void onKeyUp(Keyboard.Event event) {
 
-                if (event.key() == Key.LEFT){
+                if (event.key() == Key.LEFT) {
                     action = 1;
                     state = State.LIDLE;
                     spriteIndex = -1;
-                    e=0;
-                }
-
-               else if (event.key() == Key.RIGHT){
+                    e = 0;
+                } else if (event.key() == Key.RIGHT) {
                     action = 0;
                     state = State.RIDLE;
                     spriteIndex = -1;
-                    e=0;
-                }
-            /*    else if(event.key() == Key.Z){
-                    if(state == State.LATK){
-                    action = 1;
-                    state = State.LIDLE;
-                    }
-                    else if(state == State.RATK){
+                    e = 0;
+                } else if (event.key() == Key.Z) {
+                    if (state == State.LATK) {
+                        action = 1;
+                        state = State.LIDLE;
+                    } else if (state == State.RATK) {
                         action = 0;
                         state = State.RIDLE;
                     }
                     spriteIndex = -1;
                     e = 0;
-                }*/
+                }
             }
-
         });
     }
 
@@ -127,7 +153,7 @@ public class Bunny {
         if(!hasLoaded) return;
         e = e +delta;
 
-        if(action == 3){
+       if(action == 3){
             state = State.LRUN;
         }
         else if(action == 4){
@@ -147,7 +173,7 @@ public class Bunny {
         }
 
 
-        if(e>150){
+       if(e>150){
 
             switch (state){
                 case LIDLE: offset = 12;
@@ -186,11 +212,33 @@ public class Bunny {
                     }
                     break;
             }
+       /* if(e>150){ //test run
+
+            switch (state){
+                case LRUN: offset = 8;
+                    if(spriteIndex == 11){
+                        state =State.RRUN;
+                    }
+                    break;
+                case RRUN: offset = 20;
+                    if(spriteIndex == 23){
+                        state =State.LRUN;
+                    }
+                    break;
+
+            }*/
             spriteIndex = offset + ((spriteIndex + 1)%4);
             sprite.setSprite(spriteIndex);
             e=0;
-            System.out.println(action);
+            //System.out.println(action);
         }
 
     }
+    public void paint(Clock clock){
+        if(!hasLoaded) return;
+        sprite.layer().setTranslation(
+                body.getPosition().x/TestScreen.M_PER_PIXEL+12f,
+                body.getPosition().y/TestScreen.M_PER_PIXEL);
+    }
+
 }
