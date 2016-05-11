@@ -3,13 +3,16 @@ package sut.game01.core;
 import static playn.core.PlayN.*;
 
 
-
+import org.jbox2d.callbacks.ContactImpulse;
+import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.callbacks.DebugDraw;
+import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
+import org.jbox2d.dynamics.contacts.Contact;
 import playn.core.Image;
 import playn.core.ImageLayer;
 import playn.core.util.Callback;
@@ -20,6 +23,7 @@ import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
 import playn.core.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +36,6 @@ public class TestScreen extends Screen {
     private final Image bgImage;
     //  private Zealot z;
     private Bunny z;
-
     public static float M_PER_PIXEL = 1 / 26.666667f;
     private static int width = 24;
     private static int height = 18;
@@ -41,8 +44,11 @@ public class TestScreen extends Screen {
     private boolean showDebugDraw = true;
     private Map<String, Bunny> bunny;
     private int i=1;
-    private GroupLayer layer1 ;
     private int c =0 ;
+    private int s =0;
+    private Map<String, Body> coin;
+    private ArrayList<Body> delete;
+
 
     public TestScreen(final ScreenStack ss) {
         this.ss = ss;
@@ -66,7 +72,9 @@ public class TestScreen extends Screen {
         world.setWarmStarting(true);
         world.setAutoClearForces(true);
         this.bunny = new HashMap<String, Bunny>();
-      /*  mouse().setListener(new Mouse.Adapter(){ // click create object
+        coin = new HashMap<String, Body>();
+        delete = new ArrayList<Body>();
+        mouse().setListener(new Mouse.Adapter(){ // click create object
             @Override
             public void onMouseUp(Mouse.ButtonEvent event) {
 
@@ -74,7 +82,8 @@ public class TestScreen extends Screen {
                 bodyDef.type = BodyType.DYNAMIC;
                 bodyDef.position = new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL);
                 Body body = world.createBody(bodyDef);
-
+                coin.put("coin_"+c,body);
+                c++;
                 // PolygonShape shape = new PolygonShape();//|_|
                 // shape.setAsBox(1,1);//size
                 CircleShape shape = new CircleShape();
@@ -89,16 +98,16 @@ public class TestScreen extends Screen {
                 //body.setTransform(new Vec2(50,40),0);// picture warp
                 //body.applyForce(new Vec2(-1000f,-500f),body.getPosition());
             }
-        });*/
+        });
 
-        mouse().setListener(new Mouse.Adapter(){ // Homework
+      /*  mouse().setListener(new Mouse.Adapter(){ // Homework
             @Override
             public void onMouseUp(Mouse.ButtonEvent event) {
                 Bunny z = new Bunny(world,event.x(),event.y());
                 bunny.put("bunny_"+i,z);
                 i++;
             }
-        });
+        });*/
 
 
         Body ground = world.createBody(new BodyDef());
@@ -117,6 +126,35 @@ public class TestScreen extends Screen {
         EdgeShape groundshape3 = new EdgeShape();
         groundshape3.set(new Vec2(0,0),new Vec2(width,0));
         ground.createFixture(groundshape3,0.0f);
+
+        world.setContactListener(new ContactListener() {
+            @Override
+            public void beginContact(Contact contact) {
+                Body a =contact.getFixtureA().getBody();
+                Body b =contact.getFixtureB().getBody();
+                if(contact.getFixtureA().getBody() == z.body()) {
+                    s = s + 10;
+                    b.setActive(false);
+                   delete.add(b);
+                }
+
+            }
+
+            @Override
+            public void endContact(Contact contact) {
+
+            }
+
+            @Override
+            public void preSolve(Contact contact, Manifold manifold) {
+
+            }
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse contactImpulse) {
+
+            }
+        });
     }
 
 
@@ -124,16 +162,18 @@ public class TestScreen extends Screen {
     @Override
     public void wasShown() {
         super.wasShown();
-        layer1 = this.layer;
-        layer1.add(bg);
+
+        layer.add(bg);
+
         // z = new Zealot(560f,400f);
           // this.layer.add(z.layer()
-        c=1;
+       z = new Bunny(world,500f,400f);
+       // bunny.put("bunny_1",z);
         if(showDebugDraw){
             CanvasImage image = graphics().createImage(
                     (int)(width/TestScreen.M_PER_PIXEL),
                     (int)(height/TestScreen.M_PER_PIXEL));
-            layer1.add(graphics().createImageLayer(image));
+            layer.add(graphics().createImageLayer(image));
             debugDraw = new DebugDrawBox2D();
             debugDraw.setCanvas(image);
             debugDraw.setFlipY(false);
@@ -153,9 +193,13 @@ public class TestScreen extends Screen {
     @Override
     public void update(int delta) {
         super.update(delta);
-        for(Bunny z:this.bunny.values())
+       // for(Bunny z:this.bunny.values())
         z.update(delta);
         world.step(0.033f,10,10);
+            while (delete.size() > 0) {
+                world.destroyBody(delete.get(0));
+                delete.remove(0);
+            }
     }
 
     @Override
@@ -164,10 +208,11 @@ public class TestScreen extends Screen {
         if(showDebugDraw){
             debugDraw.getCanvas().clear();
             world.drawDebugData();
+            debugDraw.getCanvas().drawText(""+s,100f,100f);
         }
-        for(Bunny z:this.bunny.values()){
+       // for(Bunny z:this.bunny.values()){
             z.paint(clock);
-            layer1.add(z.layer());
-        }
+            layer.add(z.layer());
+       // }
     }
 }
