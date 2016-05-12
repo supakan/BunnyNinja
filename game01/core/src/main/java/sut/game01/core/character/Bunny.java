@@ -41,7 +41,7 @@ public class Bunny {
         Body body = world.createBody(bodyDef);
         body.setFixedRotation(false);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(58* TestScreen.M_PER_PIXEL/2,
+        shape.setAsBox(58* TestScreen.M_PER_PIXEL/2-0.5f,
                 sprite.layer().height()*TestScreen.M_PER_PIXEL/2);
 
         FixtureDef fixtureDef = new FixtureDef();
@@ -58,12 +58,12 @@ public class Bunny {
     }
 
     public Bunny(final World world,final float x,final float y){
-        sprite = SpriteLoader.getSprite("images/bunny.json");
+        sprite = SpriteLoader.getSprite("images/bunnys.json");
         sprite.addCallback(new Callback<Sprite>() {
             @Override
             public void onSuccess(Sprite result) {
                 sprite.setSprite(spriteIndex);
-                sprite.layer().setOrigin(sprite.width()/2f-10f,sprite.height()/2f);
+                sprite.layer().setOrigin(sprite.width()/2f-5f,sprite.height()/2f);
                 sprite.layer().setTranslation(x, y);
 
                 body = initPhysicsBody(world,
@@ -80,13 +80,13 @@ public class Bunny {
         PlayN.keyboard().setListener(new Keyboard.Adapter() {
             @Override
             public void onKeyDown(Keyboard.Event event) {
-                if (event.key() == Key.RIGHT && state != State.LJUM && state != State.RJUM) {
+                if (event.key() == Key.RIGHT && state != State.LJUM && state != State.RJUM ) {
                     action = 4;
                     state = State.RRUN;
                     spriteIndex = -1;
                     e=0;
                 }
-                else  if (event.key() == Key.LEFT && state != State.LJUM && state != State.RJUM){
+                else  if (event.key() == Key.LEFT && state != State.LJUM && state != State.RJUM ){
                     action = 3;
                     state = State.LRUN;
                     spriteIndex = -1;
@@ -104,13 +104,13 @@ public class Bunny {
                     spriteIndex = -1;
                     e=0;
                 }
-                else if(event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM){
+                else if(event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM &&state !=State.LATK && state !=State.RATK){
                     if(state == State.LIDLE || state == State.LRUN || state == State.LATK){
                         before =action;
                         action = 7;
                         state = State.LJUM;
                     }
-                    else if(state == State.RIDLE || state == State.RRUN || state == State.RATK){
+                    else if(state == State.RIDLE || state == State.RRUN || state == State.RATK &&state !=State.LATK && state !=State.RATK){
                         before =action;
                         action = 8;
                         state = State.RJUM;
@@ -133,7 +133,8 @@ public class Bunny {
                     state = State.RIDLE;
                     spriteIndex = -1;
                     e = 0;
-                } else if (event.key() == Key.Z) {
+                }
+                /*else if (event.key() == Key.Z) {
                     if (state == State.LATK) {
                         action = 1;
                         state = State.LIDLE;
@@ -143,7 +144,7 @@ public class Bunny {
                     }
                     spriteIndex = -1;
                     e = 0;
-                }
+                }*/
             }
         });
     }
@@ -190,14 +191,14 @@ public class Bunny {
                     y=0f;
                     break;
                 case LRUN: offset = 8 ;
-                    x=-600f;
+                    x=-100f;
                     y=0f;
                     if(spriteIndex == 11){
                         state =State.LIDLE;
                     }
                     break;
                 case RRUN: offset = 20 ;
-                    x=600f;
+                    x=100f;
                     y=0f;
                     if(spriteIndex == 23){
                         state =State.RIDLE;
@@ -205,25 +206,31 @@ public class Bunny {
                     }
                     break;
                 case LATK: offset = 28 ;
+                    x=0f;
+                    y=0f;
                     if(spriteIndex == 31){
                         state = State.LIDLE;
+                        action =1;
                     }
                     break;
                 case RATK: offset = 24 ;
+                    x=0f;
+                    y=0f;
                     if(spriteIndex == 27){
                         state = State.RIDLE;
+                        action =0;
                     }
                     break;
                 case LJUM: offset = 4 ;
                   //  x=0f;
-                    y=-800f;
+                    y=-185f;
                     if(spriteIndex == 7){
                         action =before;
                     }
                     break;
                 case RJUM: offset = 16 ;
                   //  x=0f;
-                    y=-800f;
+                    y=-185f;
                     if(spriteIndex == 19){
                         action =before;
                     }

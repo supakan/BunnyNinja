@@ -3,6 +3,7 @@ package sut.game01.core;
 import static playn.core.PlayN.*;
 
 
+
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.callbacks.DebugDraw;
@@ -32,8 +33,10 @@ public class TestScreen extends Screen {
     //dynamic body (Can Move Clash under physic law)
     private final ImageLayer bg;
     private final ImageLayer back;
+    private final ImageLayer pause;
     private final ScreenStack ss;
     private final Image bgImage;
+    private final Image pauseImage;
     //  private Zealot z;
     private Bunny z;
     public static float M_PER_PIXEL = 1 / 26.666667f;
@@ -45,9 +48,10 @@ public class TestScreen extends Screen {
     private Map<String, Bunny> bunny;
     private int i=1;
     private int c =0 ;
-    private int s =0;
     private Map<String, Body> coin;
     private ArrayList<Body> delete;
+    private int t =0;
+
 
 
     public TestScreen(final ScreenStack ss) {
@@ -59,14 +63,18 @@ public class TestScreen extends Screen {
         Image backImage = assets().getImage("images/back.png");
         this.back = graphics().createImageLayer(backImage);
 
-        back.setTranslation(292, 212);
+        pauseImage = assets().getImage("images/pause.png");
+        this.pause = graphics().createImageLayer(pauseImage);
+
+        pause.setTranslation(300,0);
+      /*  back.setTranslation(292, 212);
         back.addListener(new Mouse.LayerAdapter() {
             @Override
             public void onMouseUp(Mouse.ButtonEvent event) {
                 ss.remove(ss.top());
             }
 
-        });
+        });*/
         Vec2 gravity = new Vec2(0.0f,10.0f); // Vec2(x(Horizental),y(Vertical))
         world = new World(gravity);
         world.setWarmStarting(true);
@@ -74,7 +82,7 @@ public class TestScreen extends Screen {
         this.bunny = new HashMap<String, Bunny>();
         coin = new HashMap<String, Body>();
         delete = new ArrayList<Body>();
-        mouse().setListener(new Mouse.Adapter(){ // click create object
+       /* mouse().setListener(new Mouse.Adapter(){ // click create object
             @Override
             public void onMouseUp(Mouse.ButtonEvent event) {
 
@@ -98,7 +106,7 @@ public class TestScreen extends Screen {
                 //body.setTransform(new Vec2(50,40),0);// picture warp
                 //body.applyForce(new Vec2(-1000f,-500f),body.getPosition());
             }
-        });
+        });*/
 
       /*  mouse().setListener(new Mouse.Adapter(){ // Homework
             @Override
@@ -132,11 +140,11 @@ public class TestScreen extends Screen {
             public void beginContact(Contact contact) {
                 Body a =contact.getFixtureA().getBody();
                 Body b =contact.getFixtureB().getBody();
-                if(contact.getFixtureA().getBody() == z.body()) {
+              /*  if(contact.getFixtureA().getBody() == z.body()) {
                     s = s + 10;
                     b.setActive(false);
                    delete.add(b);
-                }
+                }*/
 
             }
 
@@ -155,6 +163,7 @@ public class TestScreen extends Screen {
 
             }
         });
+
     }
 
 
@@ -162,9 +171,8 @@ public class TestScreen extends Screen {
     @Override
     public void wasShown() {
         super.wasShown();
-
         layer.add(bg);
-
+        layer.add(pause);
         // z = new Zealot(560f,400f);
           // this.layer.add(z.layer()
        z = new Bunny(world,500f,400f);
@@ -196,19 +204,22 @@ public class TestScreen extends Screen {
        // for(Bunny z:this.bunny.values())
         z.update(delta);
         world.step(0.033f,10,10);
-            while (delete.size() > 0) {
+      /*      while (delete.size() > 0) {
                 world.destroyBody(delete.get(0));
                 delete.remove(0);
-            }
+            }*/
+
     }
 
     @Override
     public void paint(Clock clock) {
         super.paint(clock);
+
         if(showDebugDraw){
             debugDraw.getCanvas().clear();
             world.drawDebugData();
-            debugDraw.getCanvas().drawText(""+s,100f,100f);
+            debugDraw.getCanvas().setFillColor(Color.rgb(255,0,0));
+            debugDraw.getCanvas().drawText("Time: "+t,10f,15f);
         }
        // for(Bunny z:this.bunny.values()){
             z.paint(clock);
