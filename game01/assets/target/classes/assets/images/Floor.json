@@ -1,0 +1,6 @@
+{
+  "urls": ["images/Floor.png"],
+  "sprites":[
+    {"id": "b", "url": 0, "x": 0,   "y": 0, "w": 78, "h": 25}
+  ]
+}

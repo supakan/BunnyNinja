@@ -10,16 +10,16 @@ import org.jbox2d.callbacks.DebugDraw;
 import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.EdgeShape;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.Contact;
 import playn.core.Image;
 import playn.core.ImageLayer;
-import playn.core.util.Callback;
 import playn.core.util.Clock;
+import sut.game01.core.character.FFloor;
 import sut.game01.core.character.Bunny;
-import sut.game01.core.character.Zealot;
+import sut.game01.core.character.Floor;
+import sut.game01.core.character.Wall;
 import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
 import playn.core.*;
@@ -29,6 +29,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TestScreen extends Screen {
+    public static float M_PER_PIXEL = 1 / 26.666667f;
+    private static int width = 24;
+    private static int height = 18;
+    private World world;
+    private DebugDrawBox2D debugDraw;
+    private boolean showDebugDraw = true;
     //floor is static(Never Move don't care physic draw)
     //dynamic body (Can Move Clash under physic law)
     private final ImageLayer bg;
@@ -39,25 +45,26 @@ public class TestScreen extends Screen {
     private final Image pauseImage;
     //  private Zealot z;
     private Bunny z;
-    public static float M_PER_PIXEL = 1 / 26.666667f;
-    private static int width = 24;
-    private static int height = 18;
-    private World world;
-    private DebugDrawBox2D debugDraw;
-    private boolean showDebugDraw = true;
-    private Map<String, Bunny> bunny;
-    private int i=1;
-    private int c =0 ;
-    private Map<String, Body> coin;
+    private FFloor b;
+    private Wall w;
+    private Floor f;
+    private int i= 1;
+    private int c = 0 ;
+    private int t = 0;
+    private int bcount = 0;
+    private int wcount = 0;
+    private int fcount = 0;
+    // private Map<String, Bunny> bunny;
+    private Map<String, Body> map;
+    private Map<String, Floor> floor;
+    private Map<String, FFloor> floorf;
+    private Map<String, Wall> wall;
     private ArrayList<Body> delete;
-    private int t =0;
-
-
 
     public TestScreen(final ScreenStack ss) {
         this.ss = ss;
 
-        bgImage = assets().getImage("images/bg.png");
+        bgImage = assets().getImage("images/night.png");
         this.bg = graphics().createImageLayer(bgImage);
 
         Image backImage = assets().getImage("images/back.png");
@@ -75,38 +82,18 @@ public class TestScreen extends Screen {
             }
 
         });*/
-        Vec2 gravity = new Vec2(0.0f,10.0f); // Vec2(x(Horizental),y(Vertical))
+        Vec2 gravity = new Vec2(0.0f,15.0f); // Vec2(x(Horizental),y(Vertical))
         world = new World(gravity);
         world.setWarmStarting(true);
         world.setAutoClearForces(true);
-        this.bunny = new HashMap<String, Bunny>();
-        coin = new HashMap<String, Body>();
+        //this.bunny = new HashMap<String, Bunny>();
+       // map = new HashMap<String, Body>();
+        floor = new HashMap<String, Floor>();
+        floorf = new HashMap<String, FFloor>();
+        wall = new HashMap<String, Wall>();
+        map = new HashMap<String, Body>();
         delete = new ArrayList<Body>();
-       /* mouse().setListener(new Mouse.Adapter(){ // click create object
-            @Override
-            public void onMouseUp(Mouse.ButtonEvent event) {
 
-                BodyDef bodyDef = new BodyDef();
-                bodyDef.type = BodyType.DYNAMIC;
-                bodyDef.position = new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL);
-                Body body = world.createBody(bodyDef);
-                coin.put("coin_"+c,body);
-                c++;
-                // PolygonShape shape = new PolygonShape();//|_|
-                // shape.setAsBox(1,1);//size
-                CircleShape shape = new CircleShape();
-                shape.setRadius(0.4f);//size
-                FixtureDef fixtureDef = new FixtureDef();
-                fixtureDef.shape = shape;
-                fixtureDef.density = 0.4f; // density much weight much
-                fixtureDef.friction = 0.1f;
-                fixtureDef.restitution = 2f;//crash 0 no crash
-                body.createFixture(fixtureDef);
-                body.setLinearDamping(1f); // spring
-                //body.setTransform(new Vec2(50,40),0);// picture warp
-                //body.applyForce(new Vec2(-1000f,-500f),body.getPosition());
-            }
-        });*/
 
       /*  mouse().setListener(new Mouse.Adapter(){ // Homework
             @Override
@@ -135,22 +122,112 @@ public class TestScreen extends Screen {
         groundshape3.set(new Vec2(0,0),new Vec2(width,0));
         ground.createFixture(groundshape3,0.0f);
 
+       stage();
+      //  z = new Bunny(world,500f,200f);
+       // map.put("Bunny",z.body());
+       // System.out.println(z.body());
+
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
                 Body a =contact.getFixtureA().getBody();
                 Body b =contact.getFixtureB().getBody();
-              /*  if(contact.getFixtureA().getBody() == z.body()) {
-                    s = s + 10;
-                    b.setActive(false);
-                   delete.add(b);
+
+                if(contact.getFixtureA().getBody() ==z.body()){
+                    for(Floor f:floor.values()) {
+                        if(f.body() == b){
+                            z.floor(1);
+                         //   z.slide(0);
+                        break;
+                        }
+                    }
+                    for(FFloor f:floorf.values()){
+                        if(f.body() == b){
+                            z.floor(1);
+                          //  z.slide(0);
+                        }
+                    }
+             /*       for(Wall w:wall.values()){
+                        if(w.body() == b) {
+                            z.slide(1);
+                            z.floor(0);
+                            break;
+                        }
+                    }*/
+                }
+               else if(contact.getFixtureB().getBody() ==z.body()){
+                    for(Floor f:floor.values()) {
+                        if(f.body() == a) {
+                            z.floor(1);
+                         //   z.slide(0);
+                          //  System.out.println("Floor");
+                            break;
+                        }
+                    }
+
+                    for(FFloor f:floorf.values()){
+                        if(f.body() == a){
+                            z.floor(1);
+                       //     z.slide(0);
+                        }
+                    }
+                   /* for(Wall w:wall.values()){
+                        if(w.body() == a) {
+                            z.slide(1);
+                            z.floor(0);
+                           // System.out.println("Wall");
+                            break;
+                        }
+                    }*/
+                }
+
+           /*     if(contact.getFixtureA().getBody() == f.body() && contact.getFixtureB().getBody() == z.body()) {
+                    z.floor(1);
+                    //  s = s + 10;
+                    //   b.setActive(false);
+                    // delete.add(b);
                 }*/
 
             }
 
             @Override
             public void endContact(Contact contact) {
+/*                Body a =contact.getFixtureA().getBody();
+                Body b =contact.getFixtureB().getBody();
 
+                if(contact.getFixtureA().getBody() ==z.body() || contact.m_fixtureB.getBody() == z.body()){
+                  //  z.slide(0);
+                }
+
+
+                if(contact.getFixtureA().getBody() ==z.body()){
+                    for(Floor f:floor.values()) {
+                        if(f.body() == b){
+                            z.floor(0);
+                            break;
+                        }
+                    }
+                    for(Wall w:wall.values()){
+                        if(w.body() == b){
+                            z.slide(0);
+                            break;
+                        }
+                    }
+                }
+              else if(contact.getFixtureB().getBody() ==z.body()){
+                    for(Floor f:floor.values()) {
+                        if(f.body() == a) {
+                            z.floor(0);
+                            break;
+                        }
+                    }
+                    for(Wall w:wall.values()){
+                        if(w.body() == a){
+                            z.slide(0);
+                            break;
+                        }
+                    }
+                }*/
             }
 
             @Override
@@ -164,6 +241,40 @@ public class TestScreen extends Screen {
             }
         });
 
+       // mouse().setListener(new Mouse.Adapter(){ // click create object
+       //     @Override
+     //       public void onMouseUp(Mouse.ButtonEvent event) {
+
+               /* BodyDef bodyDef = new BodyDef();
+                bodyDef.type = BodyType.DYNAMIC;
+                bodyDef.position = new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL);
+                Body body = world.createBody(bodyDef);
+                map.put("coin_"+c,body);
+                c++;
+                // PolygonShape shape = new PolygonShape();//|_|
+                // shape.setAsBox(1,1);//size
+                CircleShape shape = new CircleShape();
+                shape.setRadius(0.4f);//size
+                FixtureDef fixtureDef = new FixtureDef();
+                fixtureDef.shape = shape;
+                fixtureDef.density = 0.4f; // density much weight much
+                fixtureDef.friction = 0.1f;
+                fixtureDef.restitution = 2f;//crash 0 no crash
+                body.createFixture(fixtureDef);
+                body.setLinearDamping(1f); // spring
+                //body.setTransform(new Vec2(50,40),0);// picture warp
+                //body.applyForce(new Vec2(-1000f,-500f),body.getPosition());*/
+            //    for(Floor f:floor.values()){
+             //    map.put(""+t,f.body());
+              //   t++;
+              //  }
+              //  for(Body b:map.values()){
+             //       System.out.println(b);
+             //   }
+             //   System.out.println("------------------------------------------------");
+                // System.out.println(z.body());
+           // }
+   //     });
     }
 
 
@@ -175,7 +286,6 @@ public class TestScreen extends Screen {
         layer.add(pause);
         // z = new Zealot(560f,400f);
           // this.layer.add(z.layer()
-       z = new Bunny(world,500f,400f);
        // bunny.put("bunny_1",z);
         if(showDebugDraw){
             CanvasImage image = graphics().createImage(
@@ -219,11 +329,66 @@ public class TestScreen extends Screen {
             debugDraw.getCanvas().clear();
             world.drawDebugData();
             debugDraw.getCanvas().setFillColor(Color.rgb(255,0,0));
-            debugDraw.getCanvas().drawText("Time: "+t,10f,15f);
+            debugDraw.getCanvas().drawText("Time: "+t,30f,15f);
         }
        // for(Bunny z:this.bunny.values()){
             z.paint(clock);
             layer.add(z.layer());
        // }
+        for(Floor f:this.floor.values())
+       layer.add(f.layer());
+
+        for(Wall w:this.wall.values())
+            layer.add(w.layer());
+
+        for(FFloor b:this.floorf.values())
+            layer.add(b.layer());
+
+
+    }
+
+    public void stage(){
+        for(int x=40 ;x<680;x=x+78) {
+           createfloor(Float.valueOf(x), 470f);
+        }
+        createfloor(-16f,445f);
+       createfloor(-16f,420f);
+     //   createfloor(-16f,405f);
+        createfloor(655f,445f);
+        createfloor(655f,420f);
+      //  createfloor(655f,405f);
+
+        for(int x=355 ;x>0;x=x-102) {
+            createwall(10f , Float.valueOf(x));
+
+            createwall(630f , Float.valueOf(x));
+        //        createwall(10f,445f);
+       }
+
+        createfloatf(200f,300f);
+        createfloatf(300f,400f);
+
+
+        z = new Bunny(world,500f,200f);
+    }
+
+    public void createfloor(float x,float y){
+        f = new Floor(world,x,y);
+        this.floor.put("Floor_"+fcount,f);
+       // map.put("Floor_"+fcount,f.body());
+        fcount++;
+
+    }
+    public void createwall(float x,float y){
+        w = new Wall(world,x,y);
+       // map.put("Floor_"+wcount,w.body());
+        this.wall.put("wall_"+wcount,w);
+        wcount++;
+    }
+    public void createfloatf(float x, float y){
+        b = new FFloor(world,x,y);
+     //   map.put("block_"+bcount,b.body());
+        this.floorf.put("block_"+bcount,b);
+        bcount++;
     }
 }
