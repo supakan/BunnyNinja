@@ -19,7 +19,7 @@ public class Mygame extends Game.Default {
   }
   @Override
   public void init() {
-      ss.push(new TestScreen(ss));
+      ss.push(new Homescreen(ss));
   }
 
   @Override
@@ -32,4 +32,5 @@ public class Mygame extends Game.Default {
     clock.paint(alpha);
       ss.paint(clock);
   }
+
 }

@@ -50,6 +50,7 @@ public class StageSelect extends Screen {
         s1Im.addListener(new Mouse.LayerAdapter(){
             @Override
             public void onMouseUp(Mouse.ButtonEvent event){
+                testScreen.choose(1);
                 ss.push(testScreen);
             }
 
