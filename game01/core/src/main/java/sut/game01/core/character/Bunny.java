@@ -26,9 +26,10 @@ public class Bunny {
     private float x1 =0f;
     private float y1 =0f;
     private int before;
-    private int s =1;
+    private boolean s =true;
     private int slide = 0;
     private int c =1;
+    private int cjum =0;
     public enum State {
         RIDLE,LIDLE, LRUN, RRUN,RATK,LATK,LJUM,RJUM,LSLD,RSLD
     };
@@ -47,7 +48,6 @@ public class Bunny {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(58* TestScreen.M_PER_PIXEL/2-0.5f,
                 sprite.layer().height()*TestScreen.M_PER_PIXEL/2);
-
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1f;
@@ -107,15 +107,15 @@ public class Bunny {
                         }
                         spriteIndex = -1;
                         e = 0;
-                    } else if (event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM && state != State.LATK && state != State.RATK && s == 1 && c == 1) {
+                    } else if (event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM && state != State.LATK && state != State.RATK && s && c == 1) {
                         if (state == State.LIDLE || state == State.LRUN || state == State.LATK) {
-                            s=0;
+                            s=false;
                             before = action;
                             action = 7;
 
                          //   state = State.LJUM;
                         } else if (state == State.RIDLE || state == State.RRUN || state == State.RATK && state != State.LATK && state != State.RATK) {
-                            s=0;
+                            s=false;
                             before = action;
                             action = 8;
 
@@ -219,14 +219,17 @@ public class Bunny {
                 case LIDLE: offset = 12;
                     x1=0;
                     y1=0f;
+                    cjum=0;
                     break;
                 case RIDLE: offset = 0;
                     x1=0;
                     y1=0f;
+                    cjum=0;
                     break;
                 case LRUN: offset = 8 ;
                    // x=-200f;
-                    y1=0f;
+                      y1=0f;
+                    cjum=0;
                     if(spriteIndex == 11){
                         state =State.LIDLE;
                     }
@@ -234,6 +237,7 @@ public class Bunny {
                 case RRUN: offset = 20 ;
                    // x=200f;
                     y1=0f;
+                    cjum=0;
                     if(spriteIndex == 23){
                         state =State.RIDLE;
                         //action = 0;
@@ -242,6 +246,7 @@ public class Bunny {
                 case LATK: offset = 28 ;
                     x1=0f;
                     y1=0f;
+                    cjum=0;
                     if(spriteIndex == 31){
                         state = State.LIDLE;
                         action =1;
@@ -250,6 +255,7 @@ public class Bunny {
                 case RATK: offset = 24 ;
                     x1=0f;
                     y1=0f;
+                    cjum=0;
                     if(spriteIndex == 27){
                         state = State.RIDLE;
                         action =0;
@@ -257,16 +263,26 @@ public class Bunny {
                     break;
                 case LJUM: offset = 4 ;
                   //  x=0f;
-                    y1=-300f;
+                    y1=-0f;
                     if(spriteIndex == 7){
                         action =1;
+                        cjum=0;
                    }
+                    else if(cjum == 0){
+                        y1=-550f;
+                        cjum=1;
+                    }
                     break;
                 case RJUM: offset = 16 ;
                   //  x=0f;
-                    y1=-300f;
+                    y1=0f;
                     if(spriteIndex == 19){
                         action =0;
+                        cjum=0;
+                    }
+                    else if(cjum == 0 ){
+                        y1=-550f;
+                        cjum=1;
                     }
                     break;
                 case LSLD: offset =36;
@@ -293,8 +309,8 @@ public class Bunny {
             sprite.setSprite(spriteIndex);
             e=0;
             body.applyForce(new Vec2(x1,y1),body.getPosition());
-           java.lang.System.out.println("S = "+s);
-           java.lang.System.out.println("SL = "+slide);
+        //   java.lang.System.out.println("S = "+s);
+         //  java.lang.System.out.println("SL = "+slide);
         }
 
     }
@@ -313,12 +329,16 @@ public class Bunny {
         return sprite.layer();
     }
 
-    public void floor(int s){
+    public void floor(boolean s){
         this.s=s;
     }
 
     public void slide(int sl){
         this.slide=sl;
         this.before=this.action;
+    }
+    public void destroy(World world) {
+        world.destroyBody(body);
+
     }
 }
