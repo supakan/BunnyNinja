@@ -109,13 +109,13 @@ public class Bunny {
                         e = 0;
                     } else if (event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM && state != State.LATK && state != State.RATK && s && c == 1) {
                         if (state == State.LIDLE || state == State.LRUN || state == State.LATK) {
-                            s=false;
+                           // s=false;
                             before = action;
                             action = 7;
 
                          //   state = State.LJUM;
                         } else if (state == State.RIDLE || state == State.RRUN || state == State.RATK && state != State.LATK && state != State.RATK) {
-                            s=false;
+                           // s=false;
                             before = action;
                             action = 8;
 
@@ -269,7 +269,8 @@ public class Bunny {
                         cjum=0;
                    }
                     else if(cjum == 0){
-                        y1=-550f;
+                       // y1=-550f;
+                        y1 = -700f;
                         cjum=1;
                     }
                     break;
@@ -281,7 +282,8 @@ public class Bunny {
                         cjum=0;
                     }
                     else if(cjum == 0 ){
-                        y1=-550f;
+                       // y1=-550f;
+                        y1 = -700f;
                         cjum=1;
                     }
                     break;
