@@ -8,6 +8,7 @@ import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.callbacks.DebugDraw;
 import org.jbox2d.collision.Manifold;
+import org.jbox2d.collision.shapes.ChainShape;
 import org.jbox2d.collision.shapes.EdgeShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
@@ -17,7 +18,10 @@ import org.jbox2d.dynamics.joints.*;
 import playn.core.Image;
 import playn.core.ImageLayer;
 import playn.core.util.Clock;
+import sut.game01.core.character.Box;
 import sut.game01.core.character.Bunny;
+import sut.game01.core.character.Eye;
+import sut.game01.core.character.Saw;
 import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
 import playn.core.*;
@@ -33,15 +37,12 @@ public class TestScreen extends Screen {
     private World world;
     private DebugDrawBox2D debugDraw;
     private boolean showDebugDraw = true;
-    //floor is static(Never Move don't care physic draw)
-    //dynamic body (Can Move Clash under physic law)
     private final ImageLayer bg;
     private final ImageLayer re;
     private final ImageLayer pause;
     private final ScreenStack ss;
     private final Image bgImage;
     private final Image pauseImage;
-    //  private Zealot z;
     private Bunny z;
     private int i= 0;
     private int d = 0 ;
@@ -49,25 +50,31 @@ public class TestScreen extends Screen {
     private int tcount = 0;
     private int fcount = 0;
     private int flcount = 0;
-    private int ccount = 0;
-    // private Map<String, Bunny> bunny;
     private Map<String, Body> flag;
     private Map<String, Body> floor;
     private Map<String, Body> trap;
-    private Map<String, Joint> chain;
-    private Map<String, Body> bchain;
-    private Map<String, ImageLayer> pchain;
+    private Map<String, Box> box;
+    private Map<String, Saw> saw;
     private ArrayList<Body> delete;
     private float rx;
     private float ry;
     private ArrayList<ImageLayer> set;
     private int s = 2;
-    private RopeJointDef rdef;
+    private Eye eye;
+  /*  private RopeJointDef rdef;
     private Joint j2;
+    private Body body1;
     private BodyDef o1;
     private BodyDef o2;
     private Body o11;
     private Body o22;
+    private int ccount = 0;
+    private Zealot z;
+    private Map<String, Bunny> bunny;
+    private Map<String, Joint> chain;
+    private Map<String, Body> bchain;
+    private Map<String, ImageLayer> pchain;*/
+
 
 
     public TestScreen(final ScreenStack ss) {
@@ -81,9 +88,6 @@ public class TestScreen extends Screen {
 
         pauseImage = assets().getImage("images/pause.png");
         this.pause = graphics().createImageLayer(pauseImage);
-
-
-
 
         pause.setTranslation(300,0);
         pause.addListener(new Mouse.LayerAdapter(){
@@ -115,15 +119,12 @@ public class TestScreen extends Screen {
         world = new World(gravity);
         world.setWarmStarting(true);
         world.setAutoClearForces(true);
-        //this.bunny = new HashMap<String, Bunny>();
-       // map = new HashMap<String, Body>();
         floor   = new HashMap<String, Body>();
         trap    = new HashMap<String, Body>();
         flag    = new HashMap<String, Body>();
-        chain   = new HashMap<String, Joint>();
-        bchain  = new HashMap<String, Body>();
+        box     = new HashMap<String, Box>();
+        saw     = new HashMap<String, Saw>();
         delete  = new ArrayList<Body>();
-        pchain  = new HashMap<String, ImageLayer>();
         set     = new ArrayList<ImageLayer>();
 
 
@@ -153,13 +154,8 @@ public class TestScreen extends Screen {
         EdgeShape groundshape3 = new EdgeShape();
         groundshape3.set(new Vec2(0,0),new Vec2(width,0));
         ground.createFixture(groundshape3,0.0f);
-      //  z = new Bunny(world,500f,200f);
+
         z = new Bunny(world, 0,0);
-      //  z = new Bunny(world,500f,200f);
-       // map.put("Bunny",z.body());
-       // System.out.println(z.body());
-
-
         world.setContactListener(new ContactListener() {
                                      @Override
                                      public void beginContact(Contact contact) {
@@ -169,7 +165,6 @@ public class TestScreen extends Screen {
                                              for (Body b1 : trap.values()) {
                                                  if (b1 == b && i == 0) {
                                                      d++;
-                                                    // z.body().setActive(false);
                                                      delete.add(z.body());
                                                      i = 1;
                                                  }
@@ -177,10 +172,6 @@ public class TestScreen extends Screen {
                                              for (Body b1 : flag.values()) {
                                                  if (b1 == b) {
                                                      b1.setActive(false);
-                                                     if(z.body() != null) {
-                                                        // z.body().setActive(false);
-                                                         z.destroy(world);
-                                                     }
                                                      finish.score(t, d, (TestScreen) ss.top());
                                                      ss.push(finish);
                                                  }
@@ -188,15 +179,12 @@ public class TestScreen extends Screen {
                                              for (Body b1 : floor.values())
                                                  if (b1 == b)
                                                      z.floor(true);
-
-
                                          }
 
                                          else if (contact.getFixtureB().getBody() == z.body()) {
                                              for (Body a1 : trap.values()) {
                                                  if (a1 == a && i == 0) {
                                                      d++;
-                                                    // z.body().setActive(false);
                                                      delete.add(z.body());
                                                      i = 1;
                                                  }
@@ -204,10 +192,6 @@ public class TestScreen extends Screen {
                                              for (Body a1 : flag.values()) {
                                                  if (a1 == a){
                                                      a1.setActive(false);
-                                                     if(z.body() != null) {
-                                                        // z.body().setActive(false);
-                                                         z.destroy(world);
-                                                     }
                                                  finish.score(t,d,(TestScreen)ss.top());
                                                  ss.push(finish);
                                                  }
@@ -359,13 +343,6 @@ public class TestScreen extends Screen {
             }
         });*/
 
-        mouse().setListener(new Mouse.Adapter(){ // click create object
-            @Override
-            public void onMouseUp(Mouse.ButtonEvent event) {
-               // world.destroyJoint(j2);
-            }
-        });
-
     }
 
 
@@ -402,7 +379,6 @@ public class TestScreen extends Screen {
     @Override
     public void update(int delta) {
         super.update(delta);
-       // for(Bunny z:this.bunny.values())
         z.update(delta);
         world.step(0.033f,10,10);
 
@@ -420,7 +396,6 @@ public class TestScreen extends Screen {
     @Override
     public void paint(Clock clock) {
         super.paint(clock);
-      //  layer.add(this.blocks);
         if(showDebugDraw){
             debugDraw.getCanvas().clear();
             world.drawDebugData();
@@ -428,14 +403,10 @@ public class TestScreen extends Screen {
             debugDraw.getCanvas().drawText("Time: "+t,30f,15f);
             debugDraw.getCanvas().drawText("Die: "+d,100f,15f);
         }
-       // for(Bunny z:this.bunny.values()){
             z.paint(clock);
             layer.add(z.layer());
-       // }
+        }
 
-
-
-    }
 
     @Override
     public void wasHidden() {
@@ -491,10 +462,13 @@ public class TestScreen extends Screen {
             body.createFixture(fixtureDef);
 
             //ffloor(400f, 250f);
-            BodyDef bodyDef1 = new BodyDef();
-            bodyDef1.type = BodyType.DYNAMIC;
-            bodyDef1.position = new Vec2(400f*M_PER_PIXEL,400f*M_PER_PIXEL);
-            Body body1 = world.createBody(bodyDef1);
+         // Box  box =new Box(400f,450f,world);
+            eye =new Eye(400f,450f,world);
+
+         /*   BodyDef bodyDef1 = new BodyDef();
+            bodyDef1.type = BodyType.STATIC;
+            bodyDef1.position = new Vec2(400f*M_PER_PIXEL,450f*M_PER_PIXEL);
+            body1 = world.createBody(bodyDef1);
             body1.setFixedRotation(true);
             PolygonShape shape1 = new PolygonShape();//|_|
             //  Image block = assets().getImage("images/FBlock.png");
@@ -502,10 +476,12 @@ public class TestScreen extends Screen {
             shape1.setAsBox(50 * M_PER_PIXEL/2, 10*M_PER_PIXEL/2);//size
             FixtureDef fixtureDef1 = new FixtureDef();
             fixtureDef1.shape = shape;
-            fixtureDef1.density = 0.4f; // density much weight much
+            fixtureDef1.density = 5f; // density much weight much
             body1.createFixture(fixtureDef1);
-
-            joint(body1,body,bodyDef1,bodyDef);
+            System.out.print(body.isBullet());
+            body1.setBullet(true);
+            body1.setActive(false);*/
+     //       joint(body1,body,bodyDef1,bodyDef);
         }
     }
 
@@ -529,17 +505,16 @@ public class TestScreen extends Screen {
         ImageLayer blocks = graphics().createImageLayer(block);
         blocks.setTranslation(x-17f,y+24f);
         set.add(blocks);
-        //graphics().rootLayer().add(blocks);
         floor.put("f"+fcount,body);
         fcount++;
-        if(chain == 1){
+    /*    if(chain == 1){
          o1=bodyDef;
          o11=body;
         }
        else if(chain == 2){
             o2=bodyDef;
             o22=body;
-        }
+        }*/
 
     }
     public void blockright(float x,float y,int chain){
@@ -561,18 +536,16 @@ public class TestScreen extends Screen {
         ImageLayer blocks = graphics().createImageLayer(block);
         blocks.setTranslation(x-54f,y+24f);
         set.add(blocks);
-        //graphics().rootLayer().add(blocks);
         floor.put("f"+fcount,body);
         fcount++;
-
-        if(chain == 1){
-            o1=bodyDef;
-            o11=body;
+       /*    if(chain == 1){
+         o1=bodyDef;
+         o11=body;
         }
-        else if(chain == 2){
+       else if(chain == 2){
             o2=bodyDef;
             o22=body;
-        }
+        }*/
     }
     public void floor(float x,float y,int chain){
         BodyDef bodyDef = new BodyDef();
@@ -589,18 +562,8 @@ public class TestScreen extends Screen {
         ImageLayer blocks = graphics().createImageLayer(block);
         blocks.setTranslation(x-100f,y-20f);
         set.add(blocks);
-       // graphics().rootLayer().add(blocks);
         floor.put("f"+fcount,body);
         fcount++;
-
-        if(chain == 1){
-            o1=bodyDef;
-            o11=body;
-        }
-        else if(chain == 2){
-            o2=bodyDef;
-            o22=body;
-        }
     }
     public void floors(float x,float y,int chain){
         BodyDef bodyDef = new BodyDef();
@@ -617,18 +580,8 @@ public class TestScreen extends Screen {
         body.createFixture(fixtureDef);
         blocks.setTranslation(x-35.5f,y-20f);
         set.add(blocks);
-        //graphics().rootLayer().add(blocks);
         floor.put("f"+fcount,body);
         fcount++;
-
-        if(chain == 1){
-            o1=bodyDef;
-            o11=body;
-        }
-        else if(chain == 2){
-            o2=bodyDef;
-            o22=body;
-        }
     }
     public void ffloor(float x,float y,int chain){
         BodyDef bodyDef = new BodyDef();
@@ -648,15 +601,6 @@ public class TestScreen extends Screen {
         //graphics().rootLayer().add(blocks);
         floor.put("f"+fcount,body);
         fcount++;
-
-        if(chain == 1){
-            o1=bodyDef;
-            o11=body;
-        }
-        else if(chain == 2){
-            o2=bodyDef;
-            o22=body;
-        }
     }
     public void trap(float x,float y,int pic){
         BodyDef bodyDef = new BodyDef();
@@ -687,7 +631,6 @@ public class TestScreen extends Screen {
         fixtureDef.shape = shape;
         fixtureDef.density = 0.4f; // density much weight much
         body.createFixture(fixtureDef);
-        //graphics().rootLayer().add(blocks);
         trap.put("t"+tcount,body);
         tcount++;
     }
@@ -706,11 +649,27 @@ public class TestScreen extends Screen {
         fixtureDef.shape = shape;
         fixtureDef.density = 0.4f; // density much weight
         body.createFixture(fixtureDef);
-        //graphics().rootLayer().add(blocks);
         flag.put("f"+flcount,body);
         flcount++;
     }
-    public void joint(Body a,Body b,BodyDef a1,BodyDef b1){
+
+    public void again(){
+        d=0;
+        t=0;
+    }
+    public void next(){
+        s++;
+        d=0;
+        t=0;
+    }
+
+    public void choose(int s) {
+        this.s = s;
+
+    }
+
+
+   /* public void joint(Body a,Body b,BodyDef a1,BodyDef b1){
         rdef = new RopeJointDef();
         rdef.type = JointType.ROPE;
         rdef.bodyA = a;
@@ -724,7 +683,8 @@ public class TestScreen extends Screen {
             revoluteJointDef.bodyA = body;//provided by testbed
             revoluteJointDef.bodyB = body1;
             revoluteJointDef.localAnchorA.set(0,0);//world coords, because m_groundBody is at (0,0)
-            revoluteJointDef.localAnchorB.set(0, -130 * M_PER_PIXEL);*/
+            revoluteJointDef.localAnchorB.set(0, -130 * M_PER_PIXEL);
+
         j2 =world.createJoint(rdef);
         blockj(a1,b1,ccount);
         chain.put(String.valueOf(ccount),j2);
@@ -743,37 +703,23 @@ public class TestScreen extends Screen {
         bodyDef.position = new Vec2(c1,c);
         Body body = world.createBody(bodyDef);
         body.setFixedRotation(true);
-        PolygonShape shape = new PolygonShape();
+      //  PolygonShape shape = new PolygonShape();
 
-        Image block = assets().getImage("images/FBlock.png");
-        ImageLayer blocks = graphics().createImageLayer(block);
-
-        shape.setAsBox(10 * M_PER_PIXEL/2, 85*M_PER_PIXEL/2);//size
-        FixtureDef fixtureDef = new FixtureDef();
+       // Image block = assets().getImage("images/FBlock.png");
+       // ImageLayer blocks = graphics().createImageLayer(block);
+//        shape.setAsBox(10 * M_PER_PIXEL/2, 85*M_PER_PIXEL/2);//size
+        ChainShape shape = new ChainShape();
+        shape.createChain(new Vec2[]{new Vec2(100f*M_PER_PIXEL,100f*M_PER_PIXEL),new Vec2(100f*M_PER_PIXEL,200f*M_PER_PIXEL)},1);
+       FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 0.4f; // density much weight much
         body.createFixture(fixtureDef);
 
-        blocks.setTranslation((c1/M_PER_PIXEL)-25f,(c/M_PER_PIXEL)-5f);
+
+  //      blocks.setTranslation((c1/M_PER_PIXEL)-25f,(c/M_PER_PIXEL)-5f);
        // pchain.add(blocks);
         bchain.put(String.valueOf(ccount),body);
-
-    }
-
-    public void again(){
-        d=0;
-        t=0;
-    }
-    public void next(){
-        s++;
-        d=0;
-        t=0;
-    }
-
-    public void choose(int s) {
-        this.s = s;
-
-    }
+    }*/
 
 }
 
