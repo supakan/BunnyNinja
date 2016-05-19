@@ -27,9 +27,10 @@ public class Bunny {
     private float y1 =0f;
     private int before;
     private boolean s =true;
-    private int slide = 0;
+    private boolean slide = false;
     private int c =1;
-    private int cjum =0;
+    private int cjum = 0;
+    private int cslide = 1;
     public enum State {
         RIDLE,LIDLE, LRUN, RRUN,RATK,LATK,LJUM,RJUM,LSLD,RSLD
     };
@@ -84,7 +85,7 @@ public class Bunny {
         PlayN.keyboard().setListener(new Keyboard.Adapter() {
             @Override
             public void onKeyDown(Keyboard.Event event) {
-                if(slide == 0) {
+                if(!slide) {
                     if (event.key() == Key.RIGHT && state != State.LJUM && state != State.RJUM) {
                         x1 = 350f;
                         action = 4;
@@ -112,13 +113,11 @@ public class Bunny {
                            // s=false;
                             before = action;
                             action = 7;
-
                          //   state = State.LJUM;
                         } else if (state == State.RIDLE || state == State.RRUN || state == State.RATK && state != State.LATK && state != State.RATK) {
                            // s=false;
                             before = action;
                             action = 8;
-
                          //   state = State.RJUM;
                         }
                         spriteIndex = -1;
@@ -126,30 +125,29 @@ public class Bunny {
                         c=0;
                     }
                 }
-                else if(slide == 1 ){
+              /*  else if(slide){
                      if (event.key() == Key.SPACE && state == State.LSLD) {
                          action = 8;
-                         x1=100;
-                         y1=-200;
-                         slide = 0;
+                         slide = false;
+                         cslide = 0;
+                         slide = false;
                         spriteIndex = -1;
                         e = 0;
                     }
                    else if (event.key() == Key.SPACE && state == State.RSLD) {
                         action = 7;
-                        x1=-100;
-                         y1=-200;
-                        slide =0;
+                        slide =false;
+                         cslide = 0;
+                         slide = false;
                         spriteIndex = -1;
                         e = 0;
                     }
-
-                }
+                }*/
             }
 
             @Override
             public void onKeyUp(Keyboard.Event event) {
-                    if(slide == 0) {
+                    if(!slide) {
                         if (event.key() == Key.LEFT) {
                             action = 1;
                          //   state = State.LIDLE;
@@ -183,7 +181,7 @@ public class Bunny {
         if(!hasLoaded) return;
         e = e +delta;
 
-        if(slide == 0) {
+        if(!slide) {
             if (action == 3) {
                 state = State.LRUN;
             } else if (action == 4) {
@@ -204,7 +202,7 @@ public class Bunny {
                 state = State.RJUM;
             }
         }
-        else if (slide == 1 ){
+        else if (slide){
             if(before == 7 || state == state.LSLD || before == 3)
             state = state.LSLD;
 
@@ -269,8 +267,7 @@ public class Bunny {
                         cjum=0;
                    }
                     else if(cjum == 0){
-                       // y1=-550f;
-                        y1 = -700f;
+                        y1=-550f;
                         cjum=1;
                     }
                     break;
@@ -282,14 +279,29 @@ public class Bunny {
                         cjum=0;
                     }
                     else if(cjum == 0 ){
-                       // y1=-550f;
-                        y1 = -700f;
-                        cjum=1;
+                        y1=-550f;
+                        cjum = 1;
                     }
                     break;
-                case LSLD: offset =36;
+                case LSLD: offset = 36;
+                    y1 = 0f;
+                    x1 = 0f;
+                    before =8;
+                    if(cslide == 0){
+                        x1= 500f;
+                        y1=-500f;
+                        cslide = 1 ;
+                    }
                     break;
-                case RSLD:offset =32;
+                case RSLD:offset = 32;
+                    y1 = 0f;
+                    x1 = 0f;
+                    before =7;
+                    if(cslide == 0){
+                        x1=-500f;
+                        y1=-500f;
+                        cslide = 1;
+                    }
                     break;
             }
        /* if(e>150){ //test run
@@ -312,7 +324,7 @@ public class Bunny {
             e=0;
             body.applyForce(new Vec2(x1,y1),body.getPosition());
         //   java.lang.System.out.println("S = "+s);
-         //  java.lang.System.out.println("SL = "+slide);
+           //java.lang.System.out.println("SL = "+slide);
         }
 
     }
@@ -335,9 +347,11 @@ public class Bunny {
         this.s=s;
     }
 
-    public void slide(int sl){
-        this.slide=sl;
+    public void slide(boolean sl){
+        this.slide= sl;
         this.before=this.action;
+        java.lang.System.out.println("SL = "+slide);
+        java.lang.System.out.println("C = "+cslide);
     }
     public void destroy(World world) {
         world.destroyBody(body);

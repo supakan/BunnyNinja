@@ -19,8 +19,8 @@ public class Mygame extends Game.Default {
   }
   @Override
   public void init() {
-      ss.push(new TestScreen(ss));
-     //ss.push(new Homescreen(ss));
+     // ss.push(new TestScreen(ss));
+     ss.push(new Homescreen(ss));
   }
 
   @Override

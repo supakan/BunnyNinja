@@ -18,6 +18,7 @@ import org.jbox2d.dynamics.joints.*;
 import playn.core.Image;
 import playn.core.ImageLayer;
 import playn.core.util.Clock;
+import pythagoras.f.IRectangle;
 import sut.game01.core.character.Box;
 import sut.game01.core.character.Bunny;
 import sut.game01.core.character.Eye;
@@ -44,24 +45,32 @@ public class TestScreen extends Screen {
     private final Image bgImage;
     private final Image pauseImage;
     private Bunny z;
-    private int i= 0;
+
     private int d = 0 ;
     private int t = 0;
     private int tcount = 0;
     private int fcount = 0;
     private int flcount = 0;
+    private int wcount = 0;
+    private int sawcount = 0;
+    private int eyecount = 0;
     private Map<String, Body> flag;
     private Map<String, Body> floor;
     private Map<String, Body> trap;
     private Map<String, Box> box;
-    private Map<String, Saw> saw;
+    private Map<String, Saw> sawm;
+    private Map<String, Body> wall;
+    private Map<String, Eye> eyem;
     private ArrayList<Body> delete;
     private float rx;
     private float ry;
     private ArrayList<ImageLayer> set;
     private int s = 2;
     private Eye eye;
-  /*  private RopeJointDef rdef;
+    private Saw saw;
+    private boolean res = false;
+  /* private RopeJointDef rdef;
+    private int i= 0;
     private Joint j2;
     private Body body1;
     private BodyDef o1;
@@ -99,14 +108,16 @@ public class TestScreen extends Screen {
             }
         });
         re.setTranslation(338,0);
+
         re.addListener(new Mouse.LayerAdapter(){
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
                 d++;
-                delete.add(z.body());
-                i = 1;
+                res = true;
             }
         });
+
+
       /*  back.setTranslation(292, 212);
         back.addListener(new Mouse.LayerAdapter() {
             @Override
@@ -122,8 +133,10 @@ public class TestScreen extends Screen {
         floor   = new HashMap<String, Body>();
         trap    = new HashMap<String, Body>();
         flag    = new HashMap<String, Body>();
+        wall    = new HashMap<String, Body>();
         box     = new HashMap<String, Box>();
-        saw     = new HashMap<String, Saw>();
+        sawm     = new HashMap<String, Saw>();
+        eyem    = new HashMap<String, Eye>();
         delete  = new ArrayList<Body>();
         set     = new ArrayList<ImageLayer>();
 
@@ -161,12 +174,12 @@ public class TestScreen extends Screen {
                                      public void beginContact(Contact contact) {
                                          Body a = contact.getFixtureA().getBody();
                                          Body b = contact.getFixtureB().getBody();
+
                                          if (contact.getFixtureA().getBody() == z.body()) {
                                              for (Body b1 : trap.values()) {
-                                                 if (b1 == b && i == 0) {
+                                                 if (b1 == b && !res) {
                                                      d++;
-                                                     delete.add(z.body());
-                                                     i = 1;
+                                                     res = true;
                                                  }
                                              }
                                              for (Body b1 : flag.values()) {
@@ -179,14 +192,21 @@ public class TestScreen extends Screen {
                                              for (Body b1 : floor.values())
                                                  if (b1 == b)
                                                      z.floor(true);
+
+                                            /* for(Body b1:wall.values()){
+                                                 if(b1 == b)
+                                                     z.slide(true);
+
+                                             }*/
                                          }
 
                                          else if (contact.getFixtureB().getBody() == z.body()) {
                                              for (Body a1 : trap.values()) {
-                                                 if (a1 == a && i == 0) {
+                                                 if (a1 == a && !res) {
                                                      d++;
-                                                     delete.add(z.body());
-                                                     i = 1;
+                                                     res = true;
+                                                    // delete.add(z.body());
+                                                    // i = 1;
                                                  }
                                              }
                                              for (Body a1 : flag.values()) {
@@ -199,7 +219,13 @@ public class TestScreen extends Screen {
                                              for (Body a1 : floor.values())
                                                  if (a1 == a)
                                                      z.floor(true);
+
+                                            /* for(Body a1:wall.values()){
+                                                 if(a1 == a)
+                                                     z.slide(true);
+                                             }*/
                                          }
+
                                      }
 
              /*       for(Wall w:wall.values()){
@@ -247,43 +273,29 @@ public class TestScreen extends Screen {
 
             @Override
             public void endContact(Contact contact) {
-/*                Body a =contact.getFixtureA().getBody();
-                Body b =contact.getFixtureB().getBody();
 
-                if(contact.getFixtureA().getBody() ==z.body() || contact.m_fixtureB.getBody() == z.body()){
-                  //  z.slide(0);
-                }
+             /*   Body a = contact.getFixtureA().getBody();
+                Body b = contact.getFixtureB().getBody();
 
+                if (contact.getFixtureA().getBody() == z.body()) {
 
-                if(contact.getFixtureA().getBody() ==z.body()){
-                    for(Floor f:floor.values()) {
-                        if(f.body() == b){
-                            z.floor(0);
-                            break;
-                        }
-                    }
-                    for(Wall w:wall.values()){
-                        if(w.body() == b){
-                            z.slide(0);
-                            break;
-                        }
+                    for(Body b1:wall.values()){
+                        if(b1 == b)
+                            z.slide(false);
+
                     }
                 }
-              else if(contact.getFixtureB().getBody() ==z.body()){
-                    for(Floor f:floor.values()) {
-                        if(f.body() == a) {
-                            z.floor(0);
-                            break;
-                        }
-                    }
-                    for(Wall w:wall.values()){
-                        if(w.body() == a){
-                            z.slide(0);
-                            break;
-                        }
+
+                else if (contact.getFixtureB().getBody() == z.body()) {
+                    for(Body a1:wall.values()){
+                        if(a1 == a)
+                            z.slide(false);
                     }
                 }*/
+
+
             }
+
 
             @Override
             public void preSolve(Contact contact, Manifold manifold) {
@@ -380,17 +392,25 @@ public class TestScreen extends Screen {
     public void update(int delta) {
         super.update(delta);
         z.update(delta);
+
+        for(Saw s:sawm.values())
+        s.update(delta);
+
+        for(Eye e:eyem.values())
+            e.update(delta);
+
         world.step(0.033f,10,10);
 
-           while (delete.size() > 0) {
-               if(delete.get(0) != null){
-               delete.get(0).setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
+           //while (delete.size() > 0) {
+               if(res){
+               z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
+                   res = false;
              //   world.destroyBody(delete.get(0));
-                delete.remove(0);
-               i=0;
+               // delete.remove(0);
+              // i=0;
                }
              //  z = new Bunny(world,500f,200f);
-            }
+         //   }
     }
 
     @Override
@@ -399,12 +419,21 @@ public class TestScreen extends Screen {
         if(showDebugDraw){
             debugDraw.getCanvas().clear();
             world.drawDebugData();
-            debugDraw.getCanvas().setFillColor(Color.rgb(255,0,0));
-            debugDraw.getCanvas().drawText("Time: "+t,30f,15f);
-            debugDraw.getCanvas().drawText("Die: "+d,100f,15f);
+            debugDraw.getCanvas().setFillColor(Color.rgb(255, 0, 0));
+            debugDraw.getCanvas().drawText("Time: " + t, 30f, 15f);
+            debugDraw.getCanvas().drawText("Die: " + d, 100f, 15f);
         }
             z.paint(clock);
             layer.add(z.layer());
+
+        for(Saw s:sawm.values()) {
+            s.paint(clock);
+            layer.add(s.layer());
+        }
+        for(Eye e:eyem.values()) {
+            e.paint(clock);
+            layer.add(e.layer());
+        }
         }
 
 
@@ -450,38 +479,10 @@ public class TestScreen extends Screen {
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
         }
         else if(s == 2){
-            BodyDef bodyDef = new BodyDef();
-            bodyDef.type = BodyType.STATIC;
-            bodyDef.position = new Vec2(400f*M_PER_PIXEL,300f*M_PER_PIXEL);
-            Body body = world.createBody(bodyDef);
-            PolygonShape shape = new PolygonShape();//|_|
-            shape.setAsBox(71 * M_PER_PIXEL/2, 40*M_PER_PIXEL/2);//size
-            FixtureDef fixtureDef = new FixtureDef();
-            fixtureDef.shape = shape;
-            fixtureDef.density = 0.4f; // density much weight much
-            body.createFixture(fixtureDef);
-
-            //ffloor(400f, 250f);
-         // Box  box =new Box(400f,450f,world);
-            eye =new Eye(400f,450f,world);
-
-         /*   BodyDef bodyDef1 = new BodyDef();
-            bodyDef1.type = BodyType.STATIC;
-            bodyDef1.position = new Vec2(400f*M_PER_PIXEL,450f*M_PER_PIXEL);
-            body1 = world.createBody(bodyDef1);
-            body1.setFixedRotation(true);
-            PolygonShape shape1 = new PolygonShape();//|_|
-            //  Image block = assets().getImage("images/FBlock.png");
-            //  ImageLayer blocks = graphics().createImageLayer(block);
-            shape1.setAsBox(50 * M_PER_PIXEL/2, 10*M_PER_PIXEL/2);//size
-            FixtureDef fixtureDef1 = new FixtureDef();
-            fixtureDef1.shape = shape;
-            fixtureDef1.density = 5f; // density much weight much
-            body1.createFixture(fixtureDef1);
-            System.out.print(body.isBullet());
-            body1.setBullet(true);
-            body1.setActive(false);*/
-     //       joint(body1,body,bodyDef1,bodyDef);
+            saw(400f,400f);
+            eye(500f,400f);
+            rx =100f;
+            ry =400f;
         }
     }
 
@@ -651,6 +652,36 @@ public class TestScreen extends Screen {
         body.createFixture(fixtureDef);
         flag.put("f"+flcount,body);
         flcount++;
+    }
+
+    public void wall(float x,float y,int chain){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyType.STATIC;
+        bodyDef.position = new Vec2(x*M_PER_PIXEL,y*M_PER_PIXEL);
+        Body body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();//|_|
+        shape.setAsBox(40 * M_PER_PIXEL/2, 600*M_PER_PIXEL/2);//size
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 0.4f; // density much weight much
+        fixtureDef.friction = 100f;
+        body.createFixture(fixtureDef);
+      //  Image block = assets().getImage("images/Floor.png");
+      //  ImageLayer blocks = graphics().createImageLayer(block);
+     //   blocks.setTranslation(x-100f,y-20f);
+     //   set.add(blocks);
+        wall.put("w"+fcount,body);
+        fcount++;
+    }
+    public void eye(float x,float y){
+        eye = new Eye(x,y,world);
+        eyem.put("Eye"+eyecount,eye);
+        eyecount++;
+    }
+    public void saw(float x,float y){
+        saw = new Saw(x,y,world);
+        sawm.put("Saw"+sawcount,saw);
+        sawcount++;
     }
 
     public void again(){
