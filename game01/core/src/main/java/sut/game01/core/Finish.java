@@ -85,6 +85,14 @@ public class Finish extends Screen {
 
             }
         });
+        next.addListener(new Mouse.LayerAdapter(){
+            @Override
+            public void onMouseDown(Mouse.ButtonEvent event) {
+                test.next();
+                ss.remove(ss.top());
+
+            }
+        });
 
         Vec2 gravity = new Vec2(0.0f,10.0f);
         world = new World(gravity);
