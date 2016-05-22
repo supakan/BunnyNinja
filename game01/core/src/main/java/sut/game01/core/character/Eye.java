@@ -23,7 +23,9 @@ public class Eye {
     private Body body;
     private float x1 =0f;
     private float y1 =0f;
-
+    private float rangex;
+    private float starty;
+    private float startx;
     public enum State {
         LWALK,RWALK
     };
@@ -39,6 +41,7 @@ public class Eye {
         bodyDef.position = new Vec2(0,0);
         Body body = world.createBody(bodyDef);
         body.setFixedRotation(true);
+        body.setGravityScale(0);
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(58* TestScreen.M_PER_PIXEL/2-0.2f,
                 sprite.layer().height()*TestScreen.M_PER_PIXEL/2);
@@ -51,11 +54,13 @@ public class Eye {
 
         //  body.setLinearDamping(0.2f);
         body.setTransform(new Vec2(x,y),0f);
-
+        startx =body.getPosition().x;
+        starty =body.getPosition().y;
         return body;
     }
 
-    public Eye(final float x, final float y,final World world){
+    public Eye(final float x, final float y,final World world,float rangex){
+        this.rangex =rangex;
         sprite = SpriteLoader.getSprite("images/Eyes.json");
         sprite.addCallback(new Callback<Sprite>() {
             @Override
@@ -84,24 +89,39 @@ public class Eye {
     public void update(int delta){
         if(!hasLoaded) return;
         e = e +delta;
-        if(e>150){
 
+        if(body.getPosition().x > rangex+1f)
+            body.setTransform(new Vec2(rangex,starty),0);
+
+        else if(body.getPosition().x < startx-1f)
+            body.setTransform(new Vec2(startx,starty),0);
+
+        else if(body.getPosition().x >= rangex ){
+            x1=-50f;
+            state =State.LWALK;
+        }
+        else if(body.getPosition().x <= startx ){
+            x1 =50f;
+            state =State.RWALK;
+        }
+
+        if(body.getPosition().y != starty){
+            body.setTransform(new Vec2(body.getPosition().x,starty),0);
+        }
+
+        if(e>150){
             switch (state){
                 case LWALK: offset = 0;
-                    if(spriteIndex == 3){
-                        state =State.RWALK;
-                    }
                     break;
                 case RWALK: offset = 4;
-                    if(spriteIndex == 7){
-                        state =State.LWALK;
-                    }
                     break;
 
             }
             spriteIndex = offset + ((spriteIndex + 1)%4);
             sprite.setSprite(spriteIndex);
             e=0;
+            body.applyForce(new Vec2(x1,y1),body.getPosition());
+            body.setLinearVelocity(new Vec2(0f, 0f));
         }
 
     }
@@ -111,5 +131,11 @@ public class Eye {
                 body.getPosition().x/TestScreen.M_PER_PIXEL,
                 body.getPosition().y/TestScreen.M_PER_PIXEL);
         //  sprite.layer().setRotation(body.getAngle());
+    }
+    public void destroy(World world){
+        world.destroyBody(body);
+    }
+    public Body body(){
+        return body;
     }
 }

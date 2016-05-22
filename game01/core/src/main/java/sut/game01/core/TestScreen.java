@@ -19,10 +19,7 @@ import playn.core.Image;
 import playn.core.ImageLayer;
 import playn.core.util.Clock;
 import pythagoras.f.IRectangle;
-import sut.game01.core.character.Box;
-import sut.game01.core.character.Bunny;
-import sut.game01.core.character.Eye;
-import sut.game01.core.character.Saw;
+import sut.game01.core.character.*;
 import tripleplay.game.Screen;
 import tripleplay.game.ScreenStack;
 import playn.core.*;
@@ -54,13 +51,16 @@ public class TestScreen extends Screen {
     private int wcount = 0;
     private int sawcount = 0;
     private int eyecount = 0;
+    private int mfcount = 0;
+    private int boxcount =0;
     private Map<String, Body> flag;
     private Map<String, Body> floor;
     private Map<String, Body> trap;
-    private Map<String, Box> box;
+    private Map<String, Box> boxm;
     private Map<String, Saw> sawm;
     private Map<String, Body> wall;
     private Map<String, Eye> eyem;
+    private Map<String,Mfloor> mfloorm;
     private ArrayList<Body> delete;
     private float rx;
     private float ry;
@@ -68,6 +68,8 @@ public class TestScreen extends Screen {
     private int s = 2;
     private Eye eye;
     private Saw saw;
+    private Mfloor mfloor;
+    private Box box;
     private boolean res = false;
   /* private RopeJointDef rdef;
     private int i= 0;
@@ -134,9 +136,10 @@ public class TestScreen extends Screen {
         trap    = new HashMap<String, Body>();
         flag    = new HashMap<String, Body>();
         wall    = new HashMap<String, Body>();
-        box     = new HashMap<String, Box>();
+        boxm     = new HashMap<String, Box>();
         sawm     = new HashMap<String, Saw>();
         eyem    = new HashMap<String, Eye>();
+        mfloorm =new HashMap<String, Mfloor>();
         delete  = new ArrayList<Body>();
         set     = new ArrayList<ImageLayer>();
 
@@ -175,6 +178,7 @@ public class TestScreen extends Screen {
                                          Body a = contact.getFixtureA().getBody();
                                          Body b = contact.getFixtureB().getBody();
 
+
                                          if (contact.getFixtureA().getBody() == z.body()) {
                                              for (Body b1 : trap.values()) {
                                                  if (b1 == b && !res) {
@@ -193,86 +197,51 @@ public class TestScreen extends Screen {
                                                  if (b1 == b)
                                                      z.floor(true);
 
+                                             for (Eye e : eyem.values()) {
+                                                 if (e.body() == b) {
+                                                     d++;
+                                                     res = true;
+                                                 }
+
+                                             }
                                             /* for(Body b1:wall.values()){
-                                                 if(b1 == b)
+                                                      if(b1 == b)
                                                      z.slide(true);
 
                                              }*/
-                                         }
-
-                                         else if (contact.getFixtureB().getBody() == z.body()) {
+                                         } else if (contact.getFixtureB().getBody() == z.body()) {
                                              for (Body a1 : trap.values()) {
                                                  if (a1 == a && !res) {
                                                      d++;
                                                      res = true;
-                                                    // delete.add(z.body());
-                                                    // i = 1;
+                                                     // delete.add(z.body());
+                                                     // i = 1;
                                                  }
                                              }
                                              for (Body a1 : flag.values()) {
-                                                 if (a1 == a){
+                                                 if (a1 == a) {
                                                      a1.setActive(false);
-                                                 finish.score(t,d,(TestScreen)ss.top());
-                                                 ss.push(finish);
+                                                     finish.score(t, d, (TestScreen) ss.top());
+                                                     ss.push(finish);
                                                  }
                                              }
                                              for (Body a1 : floor.values())
                                                  if (a1 == a)
                                                      z.floor(true);
 
-                                            /* for(Body a1:wall.values()){
-                                                 if(a1 == a)
-                                                     z.slide(true);
-                                             }*/
+                                             for (Eye e : eyem.values()) {
+                                                 if (e.body() == a) {
+                                                     d++;
+                                                     res = true;
+                                                 }
+                                             }
+
                                          }
-
                                      }
-
-             /*       for(Wall w:wall.values()){
-                        if(w.body() == b) {
-                            z.slide(1);
-                            z.floor(0);
-                            break;
-                        }
-                    }
-                }
-               else if(contact.getFixtureB().getBody() ==z.body()){
-                    for(Floor f:floor.values()) {
-                        if(f.body() == a) {
-                            z.floor(1);
-                         //   z.slide(0);
-                          //  System.out.println("Floor");
-                            break;
-                        }
-                    }
-
-                    for(FFloor f:floorf.values()){
-                        if(f.body() == a){
-                            z.floor(1);
-                       //     z.slide(0);
-                        }
-                    }
-                   /* for(Wall w:wall.values()){
-                        if(w.body() == a) {
-                            z.slide(1);
-                            z.floor(0);
-                           // System.out.println("Wall");
-                            break;
-                        }
-                    }*/
-
-
-           /*     if(contact.getFixtureA().getBody() == f.body() && contact.getFixtureB().getBody() == z.body()) {
-                    z.floor(1);
-                    //  s = s + 10;
-                    //   b.setActive(false);
-                    // delete.add(b);
-                }
-
-            }*/
 
             @Override
             public void endContact(Contact contact) {
+
 
              /*   Body a = contact.getFixtureA().getBody();
                 Body b = contact.getFixtureB().getBody();
@@ -355,9 +324,8 @@ public class TestScreen extends Screen {
             }
         });*/
 
+
     }
-
-
 
     @Override
     public void wasShown() {
@@ -399,11 +367,17 @@ public class TestScreen extends Screen {
         for(Eye e:eyem.values())
             e.update(delta);
 
+        for(Mfloor m:mfloorm.values()){
+            m.update(delta);
+        }
         world.step(0.033f,10,10);
 
            //while (delete.size() > 0) {
                if(res){
                z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
+                   for(Box b:boxm.values()){
+                       b.reset();
+                   }
                    res = false;
              //   world.destroyBody(delete.get(0));
                // delete.remove(0);
@@ -434,6 +408,16 @@ public class TestScreen extends Screen {
             e.paint(clock);
             layer.add(e.layer());
         }
+        for(Mfloor m:mfloorm.values()){
+            m.paint(clock);
+            layer.add(m.layer());
+        }
+
+        for(Box b:boxm.values()){
+            b.paint(clock);
+            layer.add(b.layer());
+        }
+
         }
 
 
@@ -454,7 +438,35 @@ public class TestScreen extends Screen {
         for (Body b1 : floor.values()) {
             world.destroyBody(b1);
         }
+        for(Box b:boxm.values()){
+            b.destroy(world);
+        }
+        for(Mfloor m:mfloorm.values()){
+            m.destroy(world);
+        }
+        for(Eye e:eyem.values()){
+            e.destroy(world);
+        }
+        for(Saw s:sawm.values()){
+            s.destroy(world);
+        }
+
+        mfloorm.clear();
+        boxm.clear();
+        eyem.clear();
+        sawm.clear();
+        trap.clear();
+        flag.clear();
+        floor.clear();
         layer.removeAll();
+        fcount = 0;
+        flcount = 0;
+        wcount = 0;
+        sawcount = 0;
+        eyecount = 0;
+        mfcount = 0;
+        boxcount =0;
+
     }
 
     public void stage(int s){
@@ -479,10 +491,25 @@ public class TestScreen extends Screen {
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
         }
         else if(s == 2){
-            saw(400f,400f);
-            eye(500f,400f);
-            rx =100f;
-            ry =400f;
+            floors(40f,460f,0);
+            for(int i=0;i<16;i++){
+                trap(100f+(40f*i),460f,0);
+            }
+            mfloor(100f,400f,14f,0,50f,0,true,true);
+            floor(600f,350f,0);
+            box(580f,310f);
+            floor(320f ,270f,0);
+            mfloor(465f,430f,0f,6f,0f,3f,false,false);
+            ffloor(140f,220f,0);
+            ffloor(200f,145f,0);
+            floor(30f,100f,0);
+            floor(600f,100f,0);
+            flag(625,60f);
+            eye(240f,220f,400*M_PER_PIXEL);
+            rx =20f;
+            ry =410f;
+            z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
+           // System.out.print(mfloorm.get("Mfloor"));
         }
     }
 
@@ -631,6 +658,7 @@ public class TestScreen extends Screen {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 0.4f; // density much weight much
+        fixtureDef.friction = 100000000000f;
         body.createFixture(fixtureDef);
         trap.put("t"+tcount,body);
         tcount++;
@@ -673,8 +701,8 @@ public class TestScreen extends Screen {
         wall.put("w"+fcount,body);
         fcount++;
     }
-    public void eye(float x,float y){
-        eye = new Eye(x,y,world);
+    public void eye(float x,float y,float rangex){
+        eye = new Eye(x,y,world,rangex);
         eyem.put("Eye"+eyecount,eye);
         eyecount++;
     }
@@ -684,14 +712,32 @@ public class TestScreen extends Screen {
         sawcount++;
     }
 
+    public void box(float x,float y){
+        box = new Box(x,y,world);
+        boxm.put("Box"+boxcount,box);
+        boxcount++;
+    }
+
+    public void mfloor(float x,float y,float rangex,float rangey,float forcex,float forcey,boolean movex,boolean move){
+        mfloor = new Mfloor(x,y,world,rangex,rangey,forcex,forcey,movex,move);
+        mfloorm.put("Mfloor"+mfcount,mfloor);
+        mfcount++;
+    }
+
     public void again(){
         d=0;
         t=0;
     }
     public void next(){
+        if(s < 2){
         s++;
         d=0;
         t=0;
+        }
+        else{
+            ss.remove(ss.top());
+            ss.remove(ss.top());
+        }
     }
 
     public void choose(int s) {

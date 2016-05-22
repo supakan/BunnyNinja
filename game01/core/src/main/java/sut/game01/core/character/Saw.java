@@ -53,4 +53,8 @@ public class Saw {
     public void update(int delta){
 
     }
+    public void destroy(World world){
+        world.destroyBody(body);
+    }
+
 }
