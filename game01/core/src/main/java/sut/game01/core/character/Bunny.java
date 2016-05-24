@@ -52,7 +52,7 @@ public class Bunny {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1f;
-        fixtureDef.friction = 1f;
+        fixtureDef.friction = 0.3f;
       //  fixtureDef.restitution = 0.1f;
         body.createFixture(fixtureDef);
 
@@ -86,14 +86,18 @@ public class Bunny {
             @Override
             public void onKeyDown(Keyboard.Event event) {
                 if(!slide) {
-                    if (event.key() == Key.RIGHT && state != State.LJUM && state != State.RJUM) {
-                        x1 = 350f;
+                    if (event.key() == Key.RIGHT) {
+                        if(state != State.LJUM && state != State.RJUM)
+                       // x1 = 350f;
+                        x1= 250f;
                         action = 4;
                       //  state = State.RRUN;
                         spriteIndex = -1;
                         e = 0;
-                    } else if (event.key() == Key.LEFT && state != State.LJUM && state != State.RJUM) {
-                        x1 = -350f;
+                    } else if (event.key() == Key.LEFT) {
+                        if(state != State.LJUM && state != State.RJUM)
+                       //     x1 = -350f;
+                            x1= -250f;
                         action = 3;
                        // state = State.LRUN;
                         spriteIndex = -1;
@@ -108,7 +112,7 @@ public class Bunny {
                         }
                         spriteIndex = -1;
                         e = 0;
-                    } else if (event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM && state != State.LATK && state != State.RATK && s && c == 1) {
+                    } else if (event.key() == Key.SPACE && state != State.LJUM && state != State.RJUM && state != State.LATK && state != State.RATK && s && c == 1 && s) {
                         if (state == State.LIDLE || state == State.LRUN || state == State.LATK) {
                            // s=false;
                             before = action;
@@ -123,6 +127,7 @@ public class Bunny {
                         spriteIndex = -1;
                         e = 0;
                         c=0;
+                        s=false;
                     }
                 }
               /*  else if(slide){
@@ -211,7 +216,7 @@ public class Bunny {
             }
         }
 
-       if(e>150){
+       if(e>100){
 
             switch (state){
                 case LIDLE: offset = 12;
@@ -322,7 +327,7 @@ public class Bunny {
             spriteIndex = offset + ((spriteIndex + 1)%4);
             sprite.setSprite(spriteIndex);
             e=0;
-            body.applyForce(new Vec2(x1,y1),body.getPosition());
+           body.applyForce(new Vec2(x1,y1),body.getPosition());
         //   java.lang.System.out.println("S = "+s);
            //java.lang.System.out.println("SL = "+slide);
         }
