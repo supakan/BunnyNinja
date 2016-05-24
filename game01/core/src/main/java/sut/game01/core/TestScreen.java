@@ -48,7 +48,7 @@ public class TestScreen extends Screen {
     private int tcount = 0;
     private int fcount = 0;
     private int flcount = 0;
-    private int wcount = 0;
+    private int swcount = 0;
     private int sawcount = 0;
     private int eyecount = 0;
     private int mfcount = 0;
@@ -61,7 +61,9 @@ public class TestScreen extends Screen {
     private Map<String, Body> wall;
     private Map<String, Eye> eyem;
     private Map<String,Mfloor> mfloorm;
-    private ArrayList<Body> delete;
+    private Map<String,Switch> swm;
+    private Map<Switch,Mfloor> swom;
+    private ArrayList<Mfloor> move;
     private float rx;
     private float ry;
     private ArrayList<ImageLayer> set;
@@ -70,8 +72,13 @@ public class TestScreen extends Screen {
     private Saw saw;
     private Mfloor mfloor;
     private Box box;
+    private Switch sw;
     private boolean res = false;
-  /* private RopeJointDef rdef;
+    private boolean over =false;
+    private boolean moveb =false;
+
+
+    /* private RopeJointDef rdef;
     private int i= 0;
     private Joint j2;
     private Body body1;
@@ -140,7 +147,9 @@ public class TestScreen extends Screen {
         sawm     = new HashMap<String, Saw>();
         eyem    = new HashMap<String, Eye>();
         mfloorm =new HashMap<String, Mfloor>();
-        delete  = new ArrayList<Body>();
+        swm     = new HashMap<String, Switch>();
+        swom    = new HashMap<Switch, Mfloor>();
+        move  = new ArrayList<Mfloor>();
         set     = new ArrayList<ImageLayer>();
 
 
@@ -153,6 +162,12 @@ public class TestScreen extends Screen {
             }
         });*/
 
+        mouse().setListener(new Mouse.Adapter(){ // Homework
+            @Override
+            public void onMouseUp(Mouse.ButtonEvent event) {
+                z.body().setTransform(new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL),0);
+            }
+        });
 
         Body ground = world.createBody(new BodyDef());
         EdgeShape groundshape = new EdgeShape();
@@ -189,8 +204,9 @@ public class TestScreen extends Screen {
                                              for (Body b1 : flag.values()) {
                                                  if (b1 == b) {
                                                      b1.setActive(false);
-                                                     finish.score(t, d, (TestScreen) ss.top());
-                                                     ss.push(finish);
+                                                     over = true;
+                                                  //   finish.score(t, d, (TestScreen) ss.top());
+                                                   //  ss.push(finish);
                                                  }
                                              }
                                              for (Body b1 : floor.values())
@@ -204,11 +220,24 @@ public class TestScreen extends Screen {
                                                  }
 
                                              }
-                                            /* for(Body b1:wall.values()){
-                                                      if(b1 == b)
-                                                     z.slide(true);
+                                             for(Switch sw:swm.values()){
+                                                 if(sw.body() == b){
+                                                     sw.change();
+                                                     move.add(swom.get(sw));
+                                                     moveb= true;
+                                                  //   swom.get(sw).change();
+                                                 }
+                                             }
 
-                                             }*/
+                                              for (Mfloor b1 : mfloorm.values())
+                                                 if (b1.body() == b)
+                                                     z.floor(true);
+
+                                             for (Box b1 : boxm.values())
+                                                 if (b1.body() == b)
+                                                     z.floor(true);
+
+
                                          } else if (contact.getFixtureB().getBody() == z.body()) {
                                              for (Body a1 : trap.values()) {
                                                  if (a1 == a && !res) {
@@ -221,8 +250,9 @@ public class TestScreen extends Screen {
                                              for (Body a1 : flag.values()) {
                                                  if (a1 == a) {
                                                      a1.setActive(false);
-                                                     finish.score(t, d, (TestScreen) ss.top());
-                                                     ss.push(finish);
+                                                     over = true;
+                                                  //   finish.score(t, d, (TestScreen) ss.top());
+                                                  //   ss.push(finish);
                                                  }
                                              }
                                              for (Body a1 : floor.values())
@@ -235,8 +265,22 @@ public class TestScreen extends Screen {
                                                      res = true;
                                                  }
                                              }
-
+                                             for(Switch sw:swm.values()){
+                                                 if(sw.body() == a){
+                                                     sw.change();
+                                                     move.add(swom.get(sw));
+                                                     moveb= true;
+                                                 //    swom.get(sw).change();
+                                                 }
+                                             }
+                                             for (Mfloor a1 : mfloorm.values())
+                                                 if (a1.body() == a)
+                                                     z.floor(true);
                                          }
+
+                                         for (Box a1 : boxm.values())
+                                             if (a1.body() == a)
+                                                 z.floor(true);
                                      }
 
             @Override
@@ -324,7 +368,6 @@ public class TestScreen extends Screen {
             }
         });*/
 
-
     }
 
     @Override
@@ -370,6 +413,16 @@ public class TestScreen extends Screen {
         for(Mfloor m:mfloorm.values()){
             m.update(delta);
         }
+
+        for(Box b:boxm.values()){
+            b.update(delta);
+        }
+
+        for(Switch sw:swm.values()){
+            sw.update(delta);
+        }
+
+
         world.step(0.033f,10,10);
 
            //while (delete.size() > 0) {
@@ -378,13 +431,25 @@ public class TestScreen extends Screen {
                    for(Box b:boxm.values()){
                        b.reset();
                    }
+                   for(Mfloor f:mfloorm.values())
+                       f.reset();
+                   for(Switch s:swm.values())
+                       s.reset();
                    res = false;
              //   world.destroyBody(delete.get(0));
                // delete.remove(0);
               // i=0;
                }
-             //  z = new Bunny(world,500f,200f);
-         //   }
+                if(moveb){
+                    move.get(0).change();
+                    move.clear();
+                    moveb= false;
+                }
+             if(over){
+                 finish.score(t,d,(TestScreen)ss.top());
+                 again();
+                 ss.push(finish);
+             }
     }
 
     @Override
@@ -417,55 +482,18 @@ public class TestScreen extends Screen {
             b.paint(clock);
             layer.add(b.layer());
         }
-
+        for(Switch sw:swm.values()){
+            sw.paint(clock);
+            layer.add(sw.layer());
         }
+
+    }
 
 
     @Override
     public void wasHidden() {
         super.wasHidden();
-      /*  System.out.println("Was Hidden");
-        if(z.body() != null) {
-            z.destroy(world);
-            System.out.println("Remove Z");
-        }*/
-        for (Body b1 : trap.values()) {
-            world.destroyBody(b1);
-        }
-        for (Body b1 : flag.values()) {
-            world.destroyBody(b1);
-        }
-        for (Body b1 : floor.values()) {
-            world.destroyBody(b1);
-        }
-        for(Box b:boxm.values()){
-            b.destroy(world);
-        }
-        for(Mfloor m:mfloorm.values()){
-            m.destroy(world);
-        }
-        for(Eye e:eyem.values()){
-            e.destroy(world);
-        }
-        for(Saw s:sawm.values()){
-            s.destroy(world);
-        }
-
-        mfloorm.clear();
-        boxm.clear();
-        eyem.clear();
-        sawm.clear();
-        trap.clear();
-        flag.clear();
-        floor.clear();
-        layer.removeAll();
-        fcount = 0;
-        flcount = 0;
-        wcount = 0;
-        sawcount = 0;
-        eyecount = 0;
-        mfcount = 0;
-        boxcount =0;
+      again();
 
     }
 
@@ -495,22 +523,27 @@ public class TestScreen extends Screen {
             for(int i=0;i<16;i++){
                 trap(100f+(40f*i),460f,0);
             }
-            mfloor(100f,400f,14f,0,50f,0,true,true);
-            floor(600f,350f,0);
-            box(580f,310f);
-            floor(320f ,270f,0);
-            mfloor(465f,430f,0f,6f,0f,3f,false,false);
-            ffloor(140f,220f,0);
-            ffloor(200f,145f,0);
+            mfloor(100f,370f,14f,0,50f,0,true,true,1f);
+            //floor(600f,360f,0);
+            ffloor(520f,310f,0);
+            ffloor(570f,310f,0);
+            ffloor(620f,310f,0);
+            ffloor(670f,310f,0);//-30
+            box(550f,285f);
+            floor(320f ,240f,0);
+            mfloor(165f,240f,0f,3.5f,0f,3f,false,true,3f);
             floor(30f,100f,0);
             floor(600f,100f,0);
             flag(625,60f);
-            eye(240f,220f,400*M_PER_PIXEL);
+            eye(240f,190f,400*M_PER_PIXEL);
+            mfloor(455f,425f,0f,6f,0f,8f,false,false,8f);
+            sw(30f,60f);
+            ffloor(630f,300f,0);
             rx =20f;
             ry =410f;
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
-           // System.out.print(mfloorm.get("Mfloor"));
         }
+
     }
 
 
@@ -658,7 +691,7 @@ public class TestScreen extends Screen {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 0.4f; // density much weight much
-        fixtureDef.friction = 100000000000f;
+        fixtureDef.friction = 10f;
         body.createFixture(fixtureDef);
         trap.put("t"+tcount,body);
         tcount++;
@@ -718,15 +751,68 @@ public class TestScreen extends Screen {
         boxcount++;
     }
 
-    public void mfloor(float x,float y,float rangex,float rangey,float forcex,float forcey,boolean movex,boolean move){
-        mfloor = new Mfloor(x,y,world,rangex,rangey,forcex,forcey,movex,move);
+    public void mfloor(float x,float y,float rangex,float rangey,float forcex,float forcey,boolean movex,boolean move,float dy){
+        mfloor = new Mfloor(x,y,world,rangex,rangey,forcex,forcey,movex,move,dy);
         mfloorm.put("Mfloor"+mfcount,mfloor);
         mfcount++;
+    }
+
+    public void sw(float x,float y){
+        sw = new Switch(x,y,world);
+        swm.put("sw"+swcount,sw);
+        swom.put(sw,mfloor);
+        swcount++;
     }
 
     public void again(){
         d=0;
         t=0;
+        z.floor(true);
+        z.body().setLinearVelocity(new Vec2(0f,0f));
+        for (Body b1 : trap.values()) {
+            world.destroyBody(b1);
+        }
+
+    for (Body b1 : flag.values()) {
+        world.destroyBody(b1);
+    }
+    for (Body b1 : floor.values()) {
+        world.destroyBody(b1);
+    }
+    for(Box b:boxm.values()){
+        b.destroy(world);
+    }
+    for(Mfloor m:mfloorm.values()){
+        m.destroy(world);
+    }
+    for(Eye e:eyem.values()){
+        e.destroy(world);
+    }
+    for(Saw s:sawm.values()){
+        s.destroy(world);
+    }
+        for(Switch sw:swm.values()){
+            sw.destroy(world);
+        }
+    mfloorm.clear();
+    boxm.clear();
+    eyem.clear();
+    sawm.clear();
+    trap.clear();
+    flag.clear();
+    floor.clear();
+    swm.clear();
+    swom.clear();
+    layer.removeAll();
+    fcount = 0;
+    flcount = 0;
+    swcount = 0;
+    sawcount = 0;
+    eyecount = 0;
+    mfcount = 0;
+    boxcount =0;
+        if(over = true)
+            over = false;
     }
     public void next(){
         if(s < 2){

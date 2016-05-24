@@ -39,13 +39,16 @@ public class Box {
         shape.setAsBox(40 * TestScreen.M_PER_PIXEL/2, 40*TestScreen.M_PER_PIXEL/2);//size
         fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 0.5f; // density much weight much
-        fixtureDef.friction=180f;
+        fixtureDef.density = 0.3f; // density much weight much
+        fixtureDef.friction=1f;
         body.createFixture(fixtureDef);
         startx =body.getPosition().x;
         starty =body.getPosition().y;
-        System.out.println(body.getPosition());
+        body.setGravityScale(20f);
 
+    }
+
+    public void update(int delta){
     }
     public void paint(Clock clock){
         blocks.setTranslation(

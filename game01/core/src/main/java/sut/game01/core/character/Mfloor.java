@@ -30,13 +30,15 @@ public class Mfloor {
     private boolean movex;
     private float x;
     private float y;
+    private float bx = 0;
+    private float by = 0;
     private boolean move ;
+    private float dy;
 
-    public Mfloor(float x, float y, World world,float rangex0,float rangey0,float forcex1,float forecy1,boolean movex,boolean move){
+    public Mfloor(float x, float y, World world,float rangex0,float rangey0,float forcex1,float forecy1,boolean movex,boolean move,float dy){
         bodyDef = new BodyDef();
         bodyDef.type = BodyType.DYNAMIC;
         bodyDef.position = new Vec2(x*TestScreen.M_PER_PIXEL,y*TestScreen.M_PER_PIXEL);
-
         bodyDef.linearDamping = 0.0f;
         bodyDef.angularDamping = 0.0f;
         body = world.createBody(bodyDef);
@@ -49,7 +51,7 @@ public class Mfloor {
         fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1f; // density much weight much
-        fixtureDef.friction =5f;
+        fixtureDef.friction =3f;
         body.createFixture(fixtureDef);
         starty =body.getPosition().y;
         startx =body.getPosition().x;
@@ -57,13 +59,20 @@ public class Mfloor {
         this.rangey0 = rangey0;
         this.forcex1 = forcex1;
         this.forecy1 = forecy1;
-
+        this.dy =dy;
         if(this.rangex0 == 0)
             this.rangex0 = startx;
         if(this.rangey0 == 0)
             this.rangey0 = starty;
+        if(this.dy ==0)
+            dy = 1;
         this.movex =movex;
         this.move =move;
+        if(!move){
+            body.setType(BodyType.STATIC);
+            bx=startx;
+            by=starty;
+        }
     }
 
     public void update(int delta) {
@@ -83,26 +92,23 @@ public class Mfloor {
                     body.applyForce(new Vec2(x, 0), body.getPosition());
                 }
                 body.setLinearVelocity(new Vec2(0f, 0f));
-            }
-            else{
-                if(body.getPosition().y < rangey0)
-                    y =forecy1/3;
+            } else {
+                if (body.getPosition().y < rangey0)
+                    y = forecy1 / dy;
                 else if (body.getPosition().y >= starty)
                     y = -forecy1;
 
                 if (body.getPosition().x > startx) {
-                    body.applyForce(new Vec2(((startx - body.getPosition().x)*800), 0), body.getPosition());
+                    body.applyForce(new Vec2(((startx - body.getPosition().x) * 800), 0), body.getPosition());
                 } else if (body.getPosition().x < startx) {
-                    body.applyForce(new Vec2((startx - body.getPosition().x)*800,0 ), body.getPosition());
+                    body.applyForce(new Vec2((startx - body.getPosition().x) * 800, 0), body.getPosition());
                 } else {
                     body.applyForce(new Vec2(0, y), body.getPosition());
                 }
                 body.setLinearVelocity(new Vec2(0f, y));
-                }
-
-           //
-
+            }
         }
+
     }
     public void paint(Clock clock){
 
@@ -120,5 +126,28 @@ public class Mfloor {
     }
     public void destroy(World world){
         world.destroyBody(body);
+    }
+    public void change(){
+
+        move = !move;
+        bx=body.getPosition().x;
+        by=body.getPosition().y;
+        if(move){
+            body.setActive(false);
+            body.setType(BodyType.DYNAMIC);
+            body.setActive(true);
+        System.out.println("Move");
+        }
+        else if(!move){
+            body.setActive(false);
+            body.setType(BodyType.STATIC);
+            body.setActive(true);
+            System.out.println("Stop");
+        }
+    }
+    public void reset(){
+        if(bx != 0)
+            body().setTransform(new Vec2(bx,by),0);
+            body.setType(BodyType.STATIC);
     }
 }

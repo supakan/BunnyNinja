@@ -67,6 +67,7 @@ public class Finish extends Screen {
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
                 test.again();
+                debugDraw.getCanvas().clear();
                 ss.remove(ss.top());
 
             }
@@ -79,6 +80,7 @@ public class Finish extends Screen {
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
                 test.choose(0);
+                debugDraw.getCanvas().clear();
                 ss.remove(ss.top());
                 ss.remove(ss.top());
                 ss.remove(ss.top());
@@ -89,6 +91,7 @@ public class Finish extends Screen {
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
                 test.next();
+                debugDraw.getCanvas().clear();
                 ss.remove(ss.top());
 
             }
