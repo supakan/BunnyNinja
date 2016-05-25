@@ -349,6 +349,7 @@ public class Bunny {
     }
 
     public void floor(boolean s){
+        if(!this.s)
         this.s=s;
     }
 

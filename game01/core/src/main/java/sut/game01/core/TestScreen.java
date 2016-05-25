@@ -38,13 +38,17 @@ public class TestScreen extends Screen {
     private final ImageLayer bg;
     private final ImageLayer re;
     private final ImageLayer pause;
+    private final ImageLayer home;
     private final ScreenStack ss;
     private final Image bgImage;
     private final Image pauseImage;
+    private final Image homeImage;
     private Bunny z;
 
     private int d = 0 ;
     private int t = 0;
+    private int it = 0;
+    private int im =0;
     private int tcount = 0;
     private int fcount = 0;
     private int flcount = 0;
@@ -53,6 +57,7 @@ public class TestScreen extends Screen {
     private int eyecount = 0;
     private int mfcount = 0;
     private int boxcount =0;
+    private int itcount =0;
     private Map<String, Body> flag;
     private Map<String, Body> floor;
     private Map<String, Body> trap;
@@ -63,19 +68,27 @@ public class TestScreen extends Screen {
     private Map<String,Mfloor> mfloorm;
     private Map<String,Switch> swm;
     private Map<Switch,Mfloor> swom;
+    private Map<String,Item> itemm;
     private ArrayList<Mfloor> move;
+    private ArrayList<Item> items;
     private float rx;
     private float ry;
     private ArrayList<ImageLayer> set;
     private int s = 2;
     private Eye eye;
     private Saw saw;
+    private Item item;
+
     private Mfloor mfloor;
     private Box box;
     private Switch sw;
     private boolean res = false;
     private boolean over =false;
     private boolean moveb =false;
+    private int timecount = 0;
+    private boolean pauses = false;
+    private boolean itemget = false;
+
 
 
     /* private RopeJointDef rdef;
@@ -107,17 +120,28 @@ public class TestScreen extends Screen {
         pauseImage = assets().getImage("images/pause.png");
         this.pause = graphics().createImageLayer(pauseImage);
 
+        homeImage = assets().getImage("images/Homes.png");
+        this.home = graphics().createImageLayer(homeImage);
+
+        home.setTranslation(376,0);
+        home.addListener(new Mouse.LayerAdapter(){
+            @Override
+            public void onMouseDown(Mouse.ButtonEvent event) {
+                ss.remove(ss.top());
+                ss.remove(ss.top());
+            }
+        });
+
         pause.setTranslation(300,0);
         pause.addListener(new Mouse.LayerAdapter(){
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
-                finish.score(t,d,(TestScreen)ss.top());
-               ss.push(finish);
-
+             //   finish.score(t,d,(TestScreen)ss.top());
+             //  ss.push(finish);
+                pauses =!pauses;
             }
         });
         re.setTranslation(338,0);
-
         re.addListener(new Mouse.LayerAdapter(){
             @Override
             public void onMouseDown(Mouse.ButtonEvent event) {
@@ -149,7 +173,9 @@ public class TestScreen extends Screen {
         mfloorm =new HashMap<String, Mfloor>();
         swm     = new HashMap<String, Switch>();
         swom    = new HashMap<Switch, Mfloor>();
+        itemm     = new HashMap<String, Item>();
         move  = new ArrayList<Mfloor>();
+        items = new ArrayList<Item>();
         set     = new ArrayList<ImageLayer>();
 
 
@@ -162,10 +188,10 @@ public class TestScreen extends Screen {
             }
         });*/
 
-        mouse().setListener(new Mouse.Adapter(){ // Homework
+        mouse().setListener(new Mouse.Adapter() { // Homework
             @Override
             public void onMouseUp(Mouse.ButtonEvent event) {
-                z.body().setTransform(new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL),0);
+                //   z.body().setTransform(new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL),0);
             }
         });
 
@@ -237,6 +263,13 @@ public class TestScreen extends Screen {
                                                  if (b1.body() == b)
                                                      z.floor(true);
 
+                                             for(Item b1 :itemm.values()){
+                                                 if(b1.body() == b){
+                                                     it++;
+                                                     itemget=true;
+                                                     items.add(b1);
+                                                 }
+                                             }
 
                                          } else if (contact.getFixtureB().getBody() == z.body()) {
                                              for (Body a1 : trap.values()) {
@@ -281,6 +314,14 @@ public class TestScreen extends Screen {
                                          for (Box a1 : boxm.values())
                                              if (a1.body() == a)
                                                  z.floor(true);
+
+                                         for(Item a1 :itemm.values()){
+                                             if(a1.body() == a){
+                                                 it++;
+                                                 itemget=true;
+                                                 items.add(a1);
+                                             }
+                                         }
                                      }
 
             @Override
@@ -376,6 +417,7 @@ public class TestScreen extends Screen {
         layer.add(bg);
         layer.add(pause);
         layer.add(re);
+        layer.add(home);
         stage(s);
         if(showDebugDraw){
             CanvasImage image = graphics().createImage(
@@ -388,10 +430,10 @@ public class TestScreen extends Screen {
             debugDraw.setStrokeAlpha(150);
             debugDraw.setFillAlpha(75);
             debugDraw.setStrokeWidth(2.0f);
-            debugDraw.setFlags(DebugDraw.e_shapeBit |
-                    DebugDraw.e_jointBit |
-                    DebugDraw.e_aabbBit);
-            debugDraw.setCamera(0,0,1f/TestScreen.M_PER_PIXEL);
+         //   debugDraw.setFlags(DebugDraw.e_shapeBit |
+          //          DebugDraw.e_jointBit |
+           //         DebugDraw.e_aabbBit);
+            debugDraw.setCamera(0, 0, 1f / TestScreen.M_PER_PIXEL);
             world.setDebugDraw(debugDraw);
         }
         while (set.size() > 0) {
@@ -401,6 +443,7 @@ public class TestScreen extends Screen {
 
     @Override
     public void update(int delta) {
+        if(!pauses) {
         super.update(delta);
         z.update(delta);
 
@@ -422,72 +465,99 @@ public class TestScreen extends Screen {
             sw.update(delta);
         }
 
-
         world.step(0.033f,10,10);
 
-           //while (delete.size() > 0) {
-               if(res){
-               z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
-                   for(Box b:boxm.values()){
-                       b.reset();
-                   }
-                   for(Mfloor f:mfloorm.values())
-                       f.reset();
-                   for(Switch s:swm.values())
-                       s.reset();
-                   res = false;
-             //   world.destroyBody(delete.get(0));
-               // delete.remove(0);
-              // i=0;
-               }
-                if(moveb){
-                    move.get(0).change();
-                    move.clear();
-                    moveb= false;
+                    //while (delete.size() > 0) {
+                    if (res) {
+                        z.body().setTransform(new Vec2(M_PER_PIXEL * rx, M_PER_PIXEL * ry), 0);
+                        for (Box b : boxm.values()) {
+                            b.reset();
+                        }
+                        for (Mfloor f : mfloorm.values())
+                            f.reset();
+                        for (Switch s : swm.values())
+                            s.reset();
+                        res = false;
+                        t = 0;
+                        timecount = 0;
+                        it =0;
+                        for(Item i :itemm.values()){
+                            i.create(world);
+                        }
+                        //   world.destroyBody(delete.get(0));
+                        // delete.remove(0);
+                        // i=0;
+                    }
+                    if (moveb) {
+                        move.get(0).change();
+                        move.clear();
+                        moveb = false;
+                    }
+                    if (over) {
+                        finish.score(t, d, (TestScreen) ss.top());
+                        again();
+                        ss.push(finish);
+                    }
+                    if(itemget){
+                        items.get(0).destroy(world);
+                        items.clear();
+                        itemget = false;
+                    }
                 }
-             if(over){
-                 finish.score(t,d,(TestScreen)ss.top());
-                 again();
-                 ss.push(finish);
-             }
     }
 
     @Override
     public void paint(Clock clock) {
-        super.paint(clock);
-        if(showDebugDraw){
-            debugDraw.getCanvas().clear();
-            world.drawDebugData();
-            debugDraw.getCanvas().setFillColor(Color.rgb(255, 0, 0));
-            debugDraw.getCanvas().drawText("Time: " + t, 30f, 15f);
-            debugDraw.getCanvas().drawText("Die: " + d, 100f, 15f);
-        }
+        if (!pauses) {
+            super.paint(clock);
+            timecount++;
+
+            if (showDebugDraw) {
+                debugDraw.getCanvas().clear();
+                world.drawDebugData();
+                debugDraw.getCanvas().setFillColor(Color.rgb(255, 0, 0));
+                debugDraw.getCanvas().drawText("Time: " + t, 30f, 15f);
+                debugDraw.getCanvas().drawText("Die: " + d, 100f, 15f);
+                debugDraw.getCanvas().drawText("Item " + it+"/"+im, 170f, 15f);
+            }
             z.paint(clock);
             layer.add(z.layer());
 
-        for(Saw s:sawm.values()) {
-            s.paint(clock);
-            layer.add(s.layer());
-        }
-        for(Eye e:eyem.values()) {
-            e.paint(clock);
-            layer.add(e.layer());
-        }
-        for(Mfloor m:mfloorm.values()){
-            m.paint(clock);
-            layer.add(m.layer());
-        }
+            for (Saw s : sawm.values()) {
+                s.paint(clock);
+                layer.add(s.layer());
+            }
+            for (Eye e : eyem.values()) {
+                e.paint(clock);
+                layer.add(e.layer());
+            }
+            for (Mfloor m : mfloorm.values()) {
+                m.paint(clock);
+                layer.add(m.layer());
+            }
 
-        for(Box b:boxm.values()){
-            b.paint(clock);
-            layer.add(b.layer());
-        }
-        for(Switch sw:swm.values()){
-            sw.paint(clock);
-            layer.add(sw.layer());
-        }
+            for (Box b : boxm.values()) {
+                b.paint(clock);
+                layer.add(b.layer());
+            }
+            for (Switch sw : swm.values()) {
+                sw.paint(clock);
+                layer.add(sw.layer());
+            }
+            for(Item i:itemm.values()) {
+                if (i.show()) {
+                    i.paint(clock);
+                    layer.add(i.layer().setVisible(true));
+                } else {
+                    i.paint(clock);
+                    layer.add(i.layer().setVisible(false));
+                }
+            }
 
-    }
+            }
+            if (timecount % 60 == 0)
+                t++;
+        }
 
 
     @Override
@@ -513,7 +583,9 @@ public class TestScreen extends Screen {
             ffloor(570f, 330f,0);
             ffloor(640f, 260f,0);
             floor(400f, 230f,0);
-            flag(315f, 190f);
+            flag(315f, 195f);
+            ffloor(200f, 230f, 0);
+            item(200f,215f);
             rx = 20f;
             ry = 400f;
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
@@ -521,24 +593,29 @@ public class TestScreen extends Screen {
         else if(s == 2){
             floors(40f,460f,0);
             for(int i=0;i<16;i++){
-                trap(100f+(40f*i),460f,0);
+                trap(90f+(40f*i),460f,0);
             }
             mfloor(100f,370f,14f,0,50f,0,true,true,1f);
             //floor(600f,360f,0);
             ffloor(520f,310f,0);
             ffloor(570f,310f,0);
             ffloor(620f,310f,0);
-            ffloor(670f,310f,0);//-30
-            box(550f,285f);
-            floor(320f ,240f,0);
-            mfloor(165f,240f,0f,3.5f,0f,3f,false,true,3f);
+            ffloor(670f, 310f, 0);//-30
+            box(550f, 285f);
+            floor(320f, 240f, 0);
+            mfloor(165f, 240f, 0f, 3.5f, 0f, 3f, false, true, 3f);
             floor(30f,100f,0);
-            floor(600f,100f,0);
-            flag(625,60f);
-            eye(240f,190f,400*M_PER_PIXEL);
-            mfloor(455f,425f,0f,6f,0f,8f,false,false,8f);
-            sw(30f,60f);
+            floor(600f, 100f, 0);
+            flag(625, 60f);
+            eye(240f, 190f, 400 * M_PER_PIXEL);
+            mfloor(455f, 425f, 0f, 6f, 0f, 8f, false, false, 8f);
+            sw(30f, 60f);
             ffloor(630f,300f,0);
+            ffloor(630f,400f,0);
+            item(630f,385f);
+            floor(-50f, 220f, 0);
+            item(10f,190f);
+            trap(70f,220f,1);
             rx =20f;
             ry =410f;
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
@@ -764,6 +841,13 @@ public class TestScreen extends Screen {
         swcount++;
     }
 
+    public void item(float x,float y){
+        item = new Item(x,y,world);
+        itemm.put("item"+itcount,item);
+        itcount++;
+        im++;
+    }
+
     public void again(){
         d=0;
         t=0;
@@ -794,6 +878,10 @@ public class TestScreen extends Screen {
         for(Switch sw:swm.values()){
             sw.destroy(world);
         }
+        for(Item i:itemm.values()){
+            i.destroy1(world);
+        }
+
     mfloorm.clear();
     boxm.clear();
     eyem.clear();
@@ -803,7 +891,9 @@ public class TestScreen extends Screen {
     floor.clear();
     swm.clear();
     swom.clear();
+    itemm.clear();
     layer.removeAll();
+    itcount = 0;
     fcount = 0;
     flcount = 0;
     swcount = 0;
@@ -811,14 +901,16 @@ public class TestScreen extends Screen {
     eyecount = 0;
     mfcount = 0;
     boxcount =0;
+    timecount = 0;
+    it =0;
+    im =0;
         if(over = true)
             over = false;
     }
     public void next(){
         if(s < 2){
         s++;
-        d=0;
-        t=0;
+        again();
         }
         else{
             ss.remove(ss.top());
@@ -828,7 +920,6 @@ public class TestScreen extends Screen {
 
     public void choose(int s) {
         this.s = s;
-
     }
 
 
