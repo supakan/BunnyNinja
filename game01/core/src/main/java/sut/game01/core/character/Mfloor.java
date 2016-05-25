@@ -34,6 +34,8 @@ public class Mfloor {
     private float by = 0;
     private boolean move ;
     private float dy;
+    private boolean stop = false;
+    private boolean fmove;
 
     public Mfloor(float x, float y, World world,float rangex0,float rangey0,float forcex1,float forecy1,boolean movex,boolean move,float dy){
         bodyDef = new BodyDef();
@@ -68,11 +70,13 @@ public class Mfloor {
             dy = 1;
         this.movex =movex;
         this.move =move;
-        if(!move){
+        if(!this.move){
             body.setType(BodyType.STATIC);
             bx=startx;
             by=starty;
+            stop=true;
         }
+        this.fmove = move;
     }
 
     public void update(int delta) {
@@ -128,7 +132,6 @@ public class Mfloor {
         world.destroyBody(body);
     }
     public void change(){
-
         move = !move;
         bx=body.getPosition().x;
         by=body.getPosition().y;
@@ -146,8 +149,10 @@ public class Mfloor {
         }
     }
     public void reset(){
-        if(bx != 0)
+        if(stop){
             body().setTransform(new Vec2(bx,by),0);
             body.setType(BodyType.STATIC);
+            move = fmove;
+        }
     }
 }
