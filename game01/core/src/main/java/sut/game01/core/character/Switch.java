@@ -83,7 +83,8 @@ public class Switch {
         //  sprite.layer().setRotation(body.getAngle());
     }
     public void destroy(World world){
-        world.destroyBody(body);
+        if(world != null)
+            world.destroyBody(body);
     }
     public Body body(){
         return body;

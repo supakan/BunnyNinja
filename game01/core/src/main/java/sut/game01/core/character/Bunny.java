@@ -1,5 +1,6 @@
 package sut.game01.core.character;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
@@ -382,7 +383,10 @@ public class Bunny {
         java.lang.System.out.println("C = "+cslide);
     }
     public void destroy(World world) {
+        if(world != null)
         world.destroyBody(body);
-
+    }
+    public void cheat(boolean cheato){
+        this.cheato =cheato;
     }
 }

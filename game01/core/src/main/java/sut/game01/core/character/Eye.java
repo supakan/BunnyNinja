@@ -133,6 +133,7 @@ public class Eye {
         //  sprite.layer().setRotation(body.getAngle());
     }
     public void destroy(World world){
+        if(world != null)
         world.destroyBody(body);
     }
     public Body body(){

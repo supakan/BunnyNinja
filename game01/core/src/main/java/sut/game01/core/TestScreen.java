@@ -636,6 +636,7 @@ public class TestScreen extends Screen {
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
         }
 
+
     }
 
 
@@ -867,6 +868,7 @@ public class TestScreen extends Screen {
         d=0;
         t=0;
         z.floor(true);
+        z.cheat(false);
         z.body().setLinearVelocity(new Vec2(0f,0f));
         for (Body b1 : trap.values()) {
             world.destroyBody(b1);
