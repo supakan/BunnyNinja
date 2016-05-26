@@ -14,6 +14,8 @@ import tripleplay.entity.System;
 
 import java.awt.event.MouseAdapter;
 
+import static playn.core.PlayN.mouse;
+
 /**
  * Created by Administrator on 30/3/2559.
  */
@@ -31,6 +33,8 @@ public class Bunny {
     private int c =1;
     private int cjum = 0;
     private int cslide = 1;
+    private int cheat =0;
+    private boolean cheato = false;
     public enum State {
         RIDLE,LIDLE, LRUN, RRUN,RATK,LATK,LJUM,RJUM,LSLD,RSLD
     };
@@ -130,6 +134,24 @@ public class Bunny {
                         s=false;
                     }
                 }
+                if(event.key() == Key.W && cheat == 0)
+                    cheat++;
+                if(event.key() == Key.A && cheat == 1)
+                    cheat++;
+                if(event.key() == Key.R && cheat == 2)
+                    cheat++;
+                if(event.key() == Key.P && cheat == 3)
+                    cheat++;
+                if(cheat == 4)
+                    cheato =true;
+
+                mouse().setListener(new Mouse.Adapter() { // Homework
+                    @Override
+                    public void onMouseUp(Mouse.ButtonEvent event) {
+                        if(cheato)
+                         body.setTransform(new Vec2(event.x() * TestScreen.M_PER_PIXEL, event.y() * TestScreen.M_PER_PIXEL), 0);
+                    }
+                });
               /*  else if(slide){
                      if (event.key() == Key.SPACE && state == State.LSLD) {
                          action = 8;
