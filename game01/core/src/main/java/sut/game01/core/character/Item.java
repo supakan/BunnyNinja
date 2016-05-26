@@ -69,6 +69,7 @@ public class Item {
     }
 
     public void destroy1(World world){
+        if(world != null)
         world.destroyBody(body);
     }
 
