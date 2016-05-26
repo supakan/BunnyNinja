@@ -39,10 +39,16 @@ public class TestScreen extends Screen {
     private final ImageLayer re;
     private final ImageLayer pause;
     private final ImageLayer home;
+    private final ImageLayer skull;
+    private final ImageLayer time;
+    private final ImageLayer itempic;
     private final ScreenStack ss;
     private final Image bgImage;
     private final Image pauseImage;
     private final Image homeImage;
+    private final Image skullImage;
+    private final Image timeImage;
+    private final Image itemImage;
     private Bunny z;
 
     private int d = 0 ;
@@ -123,6 +129,18 @@ public class TestScreen extends Screen {
         homeImage = assets().getImage("images/Homes.png");
         this.home = graphics().createImageLayer(homeImage);
 
+        skullImage = assets().getImage("images/skulls.png");
+        this.skull = graphics().createImageLayer(skullImage);
+        skull.setTranslation(85f,5f);
+
+        timeImage = assets().getImage("images/times.png");
+        this.time = graphics().createImageLayer(timeImage);
+        time.setTranslation(35f,5f);
+
+        itemImage = assets().getImage("images/items.png");
+        this.itempic = graphics().createImageLayer(itemImage);
+        itempic.setTranslation(132f,5f);
+
         home.setTranslation(376,0);
         home.addListener(new Mouse.LayerAdapter(){
             @Override
@@ -188,12 +206,6 @@ public class TestScreen extends Screen {
             }
         });*/
 
-        mouse().setListener(new Mouse.Adapter() { // Homework
-            @Override
-            public void onMouseUp(Mouse.ButtonEvent event) {
-                //   z.body().setTransform(new Vec2(event.x()*M_PER_PIXEL,event.y()*M_PER_PIXEL),0);
-            }
-        });
 
         Body ground = world.createBody(new BodyDef());
         EdgeShape groundshape = new EdgeShape();
@@ -418,6 +430,9 @@ public class TestScreen extends Screen {
         layer.add(pause);
         layer.add(re);
         layer.add(home);
+        layer.add(skull);
+        layer.add(time);
+        layer.add(itempic);
         stage(s);
         if(showDebugDraw){
             CanvasImage image = graphics().createImage(
@@ -494,7 +509,7 @@ public class TestScreen extends Screen {
                         moveb = false;
                     }
                     if (over) {
-                        finish.score(t, d, (TestScreen) ss.top());
+                        finish.score(t, d,it,im, (TestScreen) ss.top());
                         again();
                         ss.push(finish);
                     }
@@ -516,9 +531,9 @@ public class TestScreen extends Screen {
                 debugDraw.getCanvas().clear();
                 world.drawDebugData();
                 debugDraw.getCanvas().setFillColor(Color.rgb(255, 0, 0));
-                debugDraw.getCanvas().drawText("Time: " + t, 30f, 15f);
-                debugDraw.getCanvas().drawText("Die: " + d, 100f, 15f);
-                debugDraw.getCanvas().drawText("Item " + it+"/"+im, 170f, 15f);
+                debugDraw.getCanvas().drawText(": " + t, 50f, 15f);
+                debugDraw.getCanvas().drawText(": " + d, 100f, 15f);
+                debugDraw.getCanvas().drawText(": " + it+"/"+im, 140f, 15f);
             }
             z.paint(clock);
             layer.add(z.layer());

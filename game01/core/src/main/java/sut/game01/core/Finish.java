@@ -35,6 +35,8 @@ public class Finish extends Screen {
     private int d;
     private World world;
     private TestScreen test;
+    private int it;
+    private int im;
 
     public Finish(final ScreenStack ss) {
         this.ss = ss;
@@ -42,13 +44,13 @@ public class Finish extends Screen {
         bgImage = assets().getImage("images/Black.png");
         this.bg = graphics().createImageLayer(bgImage);
 
-        showImage =assets().getImage("images/show.png");
+        showImage =assets().getImage("images/show1.png");
         this.show = graphics().createImageLayer(showImage);
         show.setTranslation(190f,50f);
 
         nextImage =assets().getImage("images/Next.png");
         this.next = graphics().createImageLayer(nextImage);
-        next.setTranslation(260f,285f);
+        next.setTranslation(260f,290f);
 
        /* next.addListener(new Mouse.LayerAdapter(){
             @Override
@@ -61,7 +63,7 @@ public class Finish extends Screen {
 
         reImage =assets().getImage("images/ReturnB.png");
         this.re = graphics().createImageLayer(reImage);
-        re.setTranslation(320f,285f);
+        re.setTranslation(320f,290f);
 
         re.addListener(new Mouse.LayerAdapter(){
             @Override
@@ -74,7 +76,7 @@ public class Finish extends Screen {
         });
         homeImage =assets().getImage("images/Home.png");
         this.home = graphics().createImageLayer(homeImage);
-        home.setTranslation(380f,285f);
+        home.setTranslation(380f,290f);
 
         home.addListener(new Mouse.LayerAdapter(){
             @Override
@@ -138,13 +140,16 @@ public class Finish extends Screen {
             debugDraw.getCanvas().clear();
             world.drawDebugData();
             debugDraw.getCanvas().setFillColor(Color.rgb(255,0,0));
-            debugDraw.getCanvas().drawText(""+t,370f,190f);
-            debugDraw.getCanvas().drawText(""+d,370f,260f);
+            debugDraw.getCanvas().drawText(""+t,365f,170f);
+            debugDraw.getCanvas().drawText(""+d,370f,220f);
+            debugDraw.getCanvas().drawText(""+it+" / "+im,365f,270f);
         }
     }
-    public void score(int a,int b,TestScreen test){
+    public void score(int a,int b,int it,int im,TestScreen test){
         t=a;
         d=b;
+        this.it =it;
+        this.im =im;
         this.test =test;
     }
 }
