@@ -72,6 +72,7 @@ public class Finish extends Screen {
                 debugDraw.getCanvas().clear();
                 ss.remove(ss.top());
 
+
             }
         });
         homeImage =assets().getImage("images/Home.png");
