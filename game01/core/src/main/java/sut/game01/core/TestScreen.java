@@ -64,6 +64,7 @@ public class TestScreen extends Screen {
     private int mfcount = 0;
     private int boxcount =0;
     private int itcount =0;
+    private int ccount =0;
     private Map<String, Body> flag;
     private Map<String, Body> floor;
     private Map<String, Body> trap;
@@ -84,7 +85,7 @@ public class TestScreen extends Screen {
     private Eye eye;
     private Saw saw;
     private Item item;
-
+    private RopeJointDef rdef;
     private Mfloor mfloor;
     private Box box;
     private Switch sw;
@@ -94,6 +95,8 @@ public class TestScreen extends Screen {
     private int timecount = 0;
     private boolean pauses = false;
     private boolean itemget = false;
+    private Map<String, Joint> chain;
+    private  Joint  j2;
 
 
 
@@ -108,7 +111,7 @@ public class TestScreen extends Screen {
     private int ccount = 0;
     private Zealot z;
     private Map<String, Bunny> bunny;
-    private Map<String, Joint> chain;
+
     private Map<String, Body> bchain;
     private Map<String, ImageLayer> pchain;*/
 
@@ -195,7 +198,7 @@ public class TestScreen extends Screen {
         move  = new ArrayList<Mfloor>();
         items = new ArrayList<Item>();
         set     = new ArrayList<ImageLayer>();
-
+        chain   = new HashMap<String, Joint>();
 
       /*  mouse().setListener(new Mouse.Adapter(){ // Homework
             @Override
@@ -445,9 +448,9 @@ public class TestScreen extends Screen {
             debugDraw.setStrokeAlpha(150);
             debugDraw.setFillAlpha(75);
             debugDraw.setStrokeWidth(2.0f);
-         //   debugDraw.setFlags(DebugDraw.e_shapeBit |
-          //          DebugDraw.e_jointBit |
-           //         DebugDraw.e_aabbBit);
+            debugDraw.setFlags(DebugDraw.e_jointBit );//|
+                    //DebugDraw.e_shapeBit |
+                   // DebugDraw.e_aabbBit);
             debugDraw.setCamera(0, 0, 1f / TestScreen.M_PER_PIXEL);
             world.setDebugDraw(debugDraw);
         }
@@ -485,6 +488,7 @@ public class TestScreen extends Screen {
                     //while (delete.size() > 0) {
                     if (res) {
                         z.body().setTransform(new Vec2(M_PER_PIXEL * rx, M_PER_PIXEL * ry), 0);
+                        z.body().setLinearVelocity(new Vec2(0,0));
                         for (Box b : boxm.values()) {
                             b.reset();
                         }
@@ -635,6 +639,13 @@ public class TestScreen extends Screen {
             ry =410f;
             z.body().setTransform(new Vec2(M_PER_PIXEL*rx,M_PER_PIXEL*ry),0);
         }
+   /*     else if(s ==3){
+            floor(50f,200f,0);
+            floors(200f,100f,0);
+            box(50f,150f);
+            joint();
+        }*/
+
 
 
     }
@@ -808,25 +819,32 @@ public class TestScreen extends Screen {
         flcount++;
     }
 
-    public void wall(float x,float y,int chain){
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyType.STATIC;
-        bodyDef.position = new Vec2(x*M_PER_PIXEL,y*M_PER_PIXEL);
-        Body body = world.createBody(bodyDef);
-        PolygonShape shape = new PolygonShape();//|_|
-        shape.setAsBox(40 * M_PER_PIXEL/2, 600*M_PER_PIXEL/2);//size
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        fixtureDef.density = 0.4f; // density much weight much
-        fixtureDef.friction = 100f;
-        body.createFixture(fixtureDef);
-      //  Image block = assets().getImage("images/Floor.png");
-      //  ImageLayer blocks = graphics().createImageLayer(block);
-     //   blocks.setTranslation(x-100f,y-20f);
-     //   set.add(blocks);
-        wall.put("w"+fcount,body);
-        fcount++;
+    public void joint(){
+        rdef = new RopeJointDef();
+        rdef.type = JointType.ROPE;
+        rdef.bodyA =floor.get("f"+(fcount-1));
+        rdef.bodyB = boxm.get("Box"+(boxcount-1)).body();
+        rdef.collideConnected = false;
+        rdef.maxLength = 5.75f;
+        rdef.localAnchorA.set(0,-.125f);
+        rdef.localAnchorB.set(0,-0.725f);
+
+        //world.createJoint(rdef);
+        //    RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+         //   revoluteJointDef.bodyA = floor.get("f"+(fcount-1));//provided by testbed
+          //  revoluteJointDef.bodyB = boxm.get("Box"+(boxcount-1)).body();
+          //  revoluteJointDef.localAnchorA.set(0,0);//world coords, because m_groundBody is at (0,0)
+          //  revoluteJointDef.localAnchorB.set(0, -130 * M_PER_PIXEL);
+          //  revoluteJointDef.enableMotor = true;
+          //  revoluteJointDef.maxMotorTorque = 2000f;
+          //  revoluteJointDef.motorSpeed =3600f;
+        j2 =world.createJoint(rdef);
+       // blockj(a1,b1,ccount);
+        chain.put(String.valueOf(ccount),j2);
+        ccount++;
     }
+
+
     public void eye(float x,float y,float rangex){
         eye = new Eye(x,y,world,rangex);
         eyem.put("Eye"+eyecount,eye);
@@ -909,6 +927,7 @@ public class TestScreen extends Screen {
     swm.clear();
     swom.clear();
     itemm.clear();
+        if(layer != null);
     layer.removeAll();
     itcount = 0;
     fcount = 0;
@@ -929,10 +948,14 @@ public class TestScreen extends Screen {
         s++;
         again();
         }
+
         else{
+            s=0;
             ss.remove(ss.top());
             ss.remove(ss.top());
         }
+
+
     }
 
     public void choose(int s) {
@@ -940,27 +963,7 @@ public class TestScreen extends Screen {
     }
 
 
-   /* public void joint(Body a,Body b,BodyDef a1,BodyDef b1){
-        rdef = new RopeJointDef();
-        rdef.type = JointType.ROPE;
-        rdef.bodyA = a;
-        rdef.bodyB = b;
-        rdef.collideConnected = false;
-        rdef.maxLength = 4.75f;
-        rdef.localAnchorA.set(0,-.125f);
-        rdef.localAnchorB.set(0,.125f);
-        //world.createJoint(rdef);
-           /* RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-            revoluteJointDef.bodyA = body;//provided by testbed
-            revoluteJointDef.bodyB = body1;
-            revoluteJointDef.localAnchorA.set(0,0);//world coords, because m_groundBody is at (0,0)
-            revoluteJointDef.localAnchorB.set(0, -130 * M_PER_PIXEL);
-
-        j2 =world.createJoint(rdef);
-        blockj(a1,b1,ccount);
-        chain.put(String.valueOf(ccount),j2);
-        ccount++;
-    }
+   /*
     public void blockj(BodyDef a,BodyDef b,int ccount){
 
         float a1 = Vec2.dot(a.position,new Vec2(0,1));
@@ -990,7 +993,28 @@ public class TestScreen extends Screen {
   //      blocks.setTranslation((c1/M_PER_PIXEL)-25f,(c/M_PER_PIXEL)-5f);
        // pchain.add(blocks);
         bchain.put(String.valueOf(ccount),body);
+
+         public void wall(float x,float y,int chain){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyType.STATIC;
+        bodyDef.position = new Vec2(x*M_PER_PIXEL,y*M_PER_PIXEL);
+        Body body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();//|_|
+        shape.setAsBox(40 * M_PER_PIXEL/2, 600*M_PER_PIXEL/2);//size
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 0.4f; // density much weight much
+        fixtureDef.friction = 100f;
+        body.createFixture(fixtureDef);
+      //  Image block = assets().getImage("images/Floor.png");
+      //  ImageLayer blocks = graphics().createImageLayer(block);
+     //   blocks.setTranslation(x-100f,y-20f);
+     //   set.add(blocks);
+        wall.put("w"+fcount,body);
+        fcount++;
+    }
     }*/
+
 
 }
 
