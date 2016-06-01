@@ -140,7 +140,7 @@ public class TestScreen extends Screen {
         this.time = graphics().createImageLayer(timeImage);
         time.setTranslation(35f,5f);
 
-        itemImage = assets().getImage("images/items.png");
+        itemImage = assets().getImage("images/Items.png");
         this.itempic = graphics().createImageLayer(itemImage);
         itempic.setTranslation(132f,5f);
 
@@ -774,19 +774,19 @@ public class TestScreen extends Screen {
         Body body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();//|_|
         if(pic == 0) {
-             Image   block = assets().getImage("images/trap.png");
+             Image   block = assets().getImage("images/Trap.png");
             ImageLayer blocks = graphics().createImageLayer(block);
             blocks.setTranslation(x-20f,y-20f);
             set.add(blocks);
         }
         else if(pic == 1){
-             Image    block = assets().getImage("images/trapl.png");
+             Image    block = assets().getImage("images/Trapl.png");
             ImageLayer blocks = graphics().createImageLayer(block);
             blocks.setTranslation(x-20f,y-20f);
             set.add(blocks);
         }
         else{
-             Image   block = assets().getImage("images/trapr.png");
+             Image   block = assets().getImage("images/Trapr.png");
             ImageLayer blocks = graphics().createImageLayer(block);
             blocks.setTranslation(x-20f,y-20f);
             set.add(blocks);
