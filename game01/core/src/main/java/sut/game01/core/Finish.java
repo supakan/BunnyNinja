@@ -44,7 +44,7 @@ public class Finish extends Screen {
         bgImage = assets().getImage("images/Black.png");
         this.bg = graphics().createImageLayer(bgImage);
 
-        showImage =assets().getImage("images/show1.png");
+        showImage =assets().getImage("images/Show1.png");
         this.show = graphics().createImageLayer(showImage);
         show.setTranslation(190f,50f);
 
